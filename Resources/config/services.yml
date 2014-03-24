@@ -1,0 +1,12 @@
+services:
+    tom_atom.twig.atom_extension:
+        class: TomAtom\AtomBundle\Twig\TomAtomExtension
+        tags:
+            - { name: twig.extension } 
+        arguments:
+            em: "@doctrine.orm.entity_manager"  
+            sc: "@security.context"
+            
+                
+
+    
