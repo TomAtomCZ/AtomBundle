@@ -1,0 +1,28 @@
+{
+    "name" : "TomAtom/AtomBundle",
+    "description" : "Symfony bundle",
+    "type" : "symfony-bundle",
+    "authors" : [{
+        "name" : "Tom Atom",
+        "email" : "tom@tomatom.com"
+    }],
+    "keywords" : [
+        "atom bundle"
+    ],
+    "license" : [
+        "GPLV2"
+    ],
+    "require" : {
+    },
+    "autoload" : {
+        "psr-0" : {
+            "TomAtom\\AtomBundle" : ""
+        }
+    },
+    "target-dir" : "TomAtom/AtomBundle",
+    "extra" : {
+        "branch-alias" : {
+            "dev-master" : "2.4-dev"
+        }
+    }
+}
