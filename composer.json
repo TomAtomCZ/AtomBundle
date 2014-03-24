@@ -1,5 +1,5 @@
 {
-    "name" : "TomAtom/AtomBundle",
+    "name" : "tomatom/atom-bundle",
     "description" : "Symfony bundle",
     "type" : "symfony-bundle",
     "authors" : [{
@@ -22,7 +22,7 @@
     "target-dir" : "TomAtom/AtomBundle",
     "extra" : {
         "branch-alias" : {
-            "dev-master" : "2.4-dev"
+            "dev-master" : "1.0-dev"
         }
     }
 }
