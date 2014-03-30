@@ -16,16 +16,18 @@ class NodeAtom extends \Twig_Node implements \Twig_NodeOutputInterface
      */
     public function compile(\Twig_Compiler $compiler)
     {
-        $compiler
-            ->addDebugInfo($this)
-            ->write(sprintf("\$this->displayAtom('%s', '%s', \$context);\n", $this->getAttribute('name'), $this->getNode('body')->getAttribute('data')))
-        ;
-        
 //        $compiler
 //            ->addDebugInfo($this)
-//            ->write("echo '<div class=\"atom\">';\n")    
-//            ->subcompile($this->getNode('body'))
-//            ->write("echo '</div>';\n")    
+//            ->write(sprintf("\$this->displayAtom('%s', '%s', \$context);\n", $this->getAttribute('name'), $this->renderNode($compiler, $this->getNode('body'))))
 //        ;
+        
+        $compiler
+            ->addDebugInfo($this)
+            ->write("ob_start();\n")        
+            ->subcompile($this->getNode('body'))
+            ->write('$body = ob_get_clean();'."\n")        
+            ->write('$body = $this->checkAtom("'.$this->getAttribute('name').'", $body);'."\n")            
+            ->write('echo $body;'."\n")            
+        ;
     }
 }

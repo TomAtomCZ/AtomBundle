@@ -28,8 +28,8 @@ abstract class Template extends \Twig_Template
         $this->sc = $taExt->getSecurityContext();
     }
     
-    public function displayAtom($name, $body, array $context) 
-    {
+    public function checkAtom($name, $body) 
+    {        
         $atom = $this->em->getRepository('TomAtomAtomBundle:Atom')
                 ->findOneBy(array('name' => $name));
             
@@ -48,13 +48,15 @@ abstract class Template extends \Twig_Template
         
         if($this->sc->isGranted('IS_AUTHENTICATED_FULLY'))
         {
-            echo '<div class="atom" id="'.$name.'">';
-            echo $body;
-            echo '</div>';
+            $result = '<div class="atom" id="'.$name.'">';
+            $result .= $body;
+            $result .= '</div>';
         }
         else
         {
-            echo $body;
+            $result = $body;
         }
+        
+        return $result;
     }
 }
