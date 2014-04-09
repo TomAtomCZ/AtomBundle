@@ -36,7 +36,7 @@ Atom = {
                     // Returns an object containing the data to send to the server
                     data: function(html) {
                         return {
-                            name: 'praprase',
+                            name: this.raptor.getElement().attr('id'),
                             body: html
                         };
                     }
