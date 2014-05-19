@@ -35,7 +35,7 @@ class AtomController extends Controller
     }
     
     /**
-     * @Route("/save-custom-entity", name="atom_save_entity")
+     * @Route("/save-entity", name="atom_entity_save")
      * @Template()
      */
     public function saveCustomEntityAction(Request $request)
@@ -46,17 +46,17 @@ class AtomController extends Controller
         
         $em = $this->getDoctrine()->getManager();
         
-        $atom = $em->getRepository('TomAtomAtomBundle:Atom')
-            ->findOneBy(array('name' => $request->get('name')));
+        $object = $em->getRepository('TomAtomAtomBundle:'.$request->get('entity'))
+            ->findOneBy(array('id' => $request->get('id')));
 
-        if(!$atom)
+        if(!$object)
         {
-            throw $this->createNotFoundException('The atom does not exist');
+            throw $this->createNotFoundException('The '.$request->get('entity').' does not exist');
         }
 
-        $atom->setBody($request->get('body'));
+        call_user_func(array($object, $request->get('method')), $request->get('html')); 
 
-        $em->persist($atom);
+        $em->persist($object);
         $em->flush();     
         
         return new JsonResponse(array('status' => 'ok'));
@@ -67,6 +67,8 @@ class AtomController extends Controller
      */
     public function _metasAction()
     {
-        return array();
+        $securityContext = $this->container->get('security.context');
+        $editable = $securityContext->isGranted('IS_AUTHENTICATED_FULLY');
+        return array('editable' => $editable);
     }
 }
