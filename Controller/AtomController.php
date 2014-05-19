@@ -46,7 +46,7 @@ class AtomController extends Controller
         
         $em = $this->getDoctrine()->getManager();
         
-        $object = $em->getRepository('TomAtomAtomBundle:'.$request->get('entity'))
+        $object = $em->getRepository($request->get('entity'))
             ->findOneBy(array('id' => $request->get('id')));
 
         if(!$object)

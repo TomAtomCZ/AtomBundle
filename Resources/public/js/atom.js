@@ -88,12 +88,16 @@ AtomEntity = {
                     // Returns an object containing the data to send to the server
                     data: function(html) {
                         var el = this.raptor.getElement();
-                        return {
+                        var result = {
                             entity: el.data('atom-entity'),
                             id: el.data('atom-id'),
                             method: el.data('atom-method'),
                             html: html
                         };
+                        
+                        //console.log(result);
+                        
+                        return result;
                     }
                 },
             }
