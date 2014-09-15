@@ -46,7 +46,7 @@ abstract class Template extends \Twig_Template
             $body = $atom->getBody();
         }
         
-        if($this->sc->isGranted('IS_AUTHENTICATED_FULLY') && $this->sc->isGranted('ROLE_ATOM_ADMIN'))
+        if($this->sc->isGranted('IS_AUTHENTICATED_FULLY') && $this->sc->isGranted('ROLE_SUPER_ADMIN'))
         {
             $result = '<div class="atom" id="'.$name.'">';
             $result .= $body;

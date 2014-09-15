@@ -12,7 +12,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 class AtomController extends Controller
 {
     /**
-     * @Security("has_role('ROLE_ATOM_ADMIN')")
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
      * @Route("/save", name="atom_save")
      * @Template()
      */
@@ -37,7 +37,7 @@ class AtomController extends Controller
     }
     
     /**
-     * @Security("has_role('ROLE_ATOM_ADMIN')")
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
      * @Route("/save-entity", name="atom_entity_save")
      * @Template()
      */
@@ -66,7 +66,7 @@ class AtomController extends Controller
     }
 
     /**
-     * @Security("has_role('ROLE_ATOM_ADMIN')")
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
      * @Template()
      */
     public function _metasAction()
