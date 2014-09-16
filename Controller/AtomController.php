@@ -66,13 +66,12 @@ class AtomController extends Controller
     }
 
     /**
-     * @Security("has_role('ROLE_SUPER_ADMIN')")
      * @Template()
      */
     public function _metasAction()
     {
         $securityContext = $this->container->get('security.context');
-        $editable = $securityContext->isGranted('IS_AUTHENTICATED_FULLY');
+        $editable = $securityContext->isGranted('IS_AUTHENTICATED_FULLY') && $securityContext->isGranted('ROLE_SUPER_ADMIN');
         return array('editable' => $editable);
     }
 }
