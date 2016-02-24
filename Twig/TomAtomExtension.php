@@ -2,7 +2,7 @@
 
 namespace TomAtom\AtomBundle\Twig;
 
-use \Symfony\Component\Security\Core\SecurityContext;
+use \Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 use \Doctrine\Common\Persistence\ObjectManager;
 
 class TomAtomExtension extends \Twig_Extension
@@ -11,36 +11,36 @@ class TomAtomExtension extends \Twig_Extension
      * @var ObjectManager
      */
     protected $em;
-    
-    /**
-     * @var SecurityContext
-     */
-    protected $sc;
 
-    public function __construct(ObjectManager $em, SecurityContext $sc)
+    /**
+     * @var AuthorizationChecker
+     */
+    protected $ac;
+
+    public function __construct(ObjectManager $em, AuthorizationChecker $ac)
     {
         $this->em = $em;
-        $this->sc = $sc;
+        $this->ac = $ac;
     }
-    
+
     /**
-     * 
+     *
      * @return ObjectManager
      */
-    public function getEntityManager() 
+    public function getEntityManager()
     {
         return $this->em;
     }
-    
+
     /**
-     * 
-     * @return SecurityContext
+     *
+     * @return AuthorizationChecker
      */
-    public function getSecurityContext() 
+    public function getAuthorizationChecker()
     {
-        return $this->sc;
+        return $this->ac;
     }
-    
+
     public function getTokenParsers()
     {
         return array(

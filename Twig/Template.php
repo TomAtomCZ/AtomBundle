@@ -3,7 +3,7 @@
 namespace TomAtom\AtomBundle\Twig;
 
 use TomAtom\AtomBundle\Entity\Atom;
-use \Symfony\Component\Security\Core\SecurityContext;
+use \Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 use \Doctrine\Common\Persistence\ObjectManager;
 
 abstract class Template extends \Twig_Template
@@ -12,27 +12,27 @@ abstract class Template extends \Twig_Template
      * @var ObjectManager
      */
     protected $em;
-    
+
     /**
-     * @var SecurityContext
+     * @var AuthorizationChecker
      */
-    protected $sc;
-    
-    public function __construct(\Twig_Environment $env) 
+    protected $ac;
+
+    public function __construct(\Twig_Environment $env)
     {
         parent::__construct($env);
-        
+
         $taExt = $env->getExtension('tom_atom_extension');
-        
+
         $this->em = $taExt->getEntityManager();
-        $this->sc = $taExt->getSecurityContext();
+        $this->ac = $taExt->getAuthorizationChecker();
     }
-    
-    public function checkAtom($name, $body) 
-    {        
+
+    public function checkAtom($name, $body)
+    {
         $atom = $this->em->getRepository('TomAtomAtomBundle:Atom')
-                ->findOneBy(array('name' => $name));
-            
+            ->findOneBy(array('name' => $name));
+
         if(!$atom)
         {
             $atom = new Atom();
@@ -45,8 +45,8 @@ abstract class Template extends \Twig_Template
         {
             $body = $atom->getBody();
         }
-        
-        if($this->sc->isGranted('IS_AUTHENTICATED_FULLY') && $this->sc->isGranted('ROLE_SUPER_ADMIN'))
+
+        if($this->ac->isGranted('IS_AUTHENTICATED_FULLY') && $this->ac->isGranted('ROLE_SUPER_ADMIN'))
         {
             $result = '<div class="atom" id="'.$name.'">';
             $result .= $body;
@@ -56,7 +56,7 @@ abstract class Template extends \Twig_Template
         {
             $result = $body;
         }
-        
+
         return $result;
     }
 }

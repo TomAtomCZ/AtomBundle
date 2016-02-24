@@ -5,7 +5,7 @@ services:
             - { name: twig.extension } 
         arguments:
             em: "@doctrine.orm.entity_manager"  
-            sc: "@security.context"
+            sc: "@security.authorization_checker"
             
                 
 

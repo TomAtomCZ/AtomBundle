@@ -70,7 +70,7 @@ class AtomController extends Controller
      */
     public function _metasAction()
     {
-        $securityContext = $this->container->get('security.context');
+        $securityContext = $this->container->get('security.authorization_checker');
         $editable = $securityContext->isGranted('IS_AUTHENTICATED_FULLY') && $securityContext->isGranted('ROLE_SUPER_ADMIN');
         return array('editable' => $editable);
     }
