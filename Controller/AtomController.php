@@ -14,7 +14,6 @@ class AtomController extends Controller
     /**
      * @Security("has_role('ROLE_SUPER_ADMIN')")
      * @Route("/save", name="atom_save")
-     * @Template()
      */
     public function saveAction(Request $request)
     {
@@ -25,7 +24,10 @@ class AtomController extends Controller
 
         if(!$atom)
         {
-            throw $this->createNotFoundException('The atom does not exist');
+            return new JsonResponse([
+                'status' => 'error',
+                'details' => 'The Atom does not exist'
+            ]);
         }
 
         $atom->setBody($request->get('body'));
@@ -33,20 +35,17 @@ class AtomController extends Controller
         $em->persist($atom);
         $em->flush();     
         
-        return new JsonResponse(array('status' => 'ok'));
+        return new JsonResponse([
+            'status' => 'ok'
+        ]);
     }
     
     /**
      * @Security("has_role('ROLE_SUPER_ADMIN')")
      * @Route("/save-entity", name="atom_entity_save")
-     * @Template()
      */
     public function saveCustomEntityAction(Request $request)
     {
-//        $logger = $this->get('logger');
-//        $logger->info($request->get('name'));
-//        $logger->info($request->get('body'));
-        
         $em = $this->getDoctrine()->getManager();
         
         $object = $em->getRepository($request->get('entity'))
@@ -54,15 +53,20 @@ class AtomController extends Controller
 
         if(!$object)
         {
-            throw $this->createNotFoundException('The '.$request->get('entity').' does not exist');
+            return new JsonResponse([
+                'status' => 'error',
+                'details' => 'The Atom does not exist'
+            ]);
         }
 
         call_user_func(array($object, $request->get('method')), $request->get('html')); 
 
         $em->persist($object);
-        $em->flush();     
-        
-        return new JsonResponse(array('status' => 'ok'));
+        $em->flush();
+
+        return new JsonResponse([
+            'status' => 'ok'
+        ]);
     }
 
     /**
