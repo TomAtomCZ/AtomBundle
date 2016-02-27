@@ -40,11 +40,11 @@ Atom = {
                             body: html
                         };
                     }
-                },
+                }
             }
         });
     }
-}
+};
 
 
 /**
@@ -99,11 +99,11 @@ AtomEntity = {
                         
                         return result;
                     }
-                },
+                }
             }
         });
     }
-}
+};
 
 $(function() 
 {

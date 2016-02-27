@@ -4,7 +4,7 @@ namespace TomAtom\AtomBundle\Twig;
 
 class NodeAtom extends \Twig_Node implements \Twig_NodeOutputInterface
 {
-    public function __construct($name, \Twig_NodeInterface $body, $lineno, $tag = null)
+    public function __construct($name, \Twig_Node $body, $lineno, $tag = null)
     {
         parent::__construct(array('body' => $body), array('name' => $name), $lineno, $tag);
     }
@@ -16,11 +16,6 @@ class NodeAtom extends \Twig_Node implements \Twig_NodeOutputInterface
      */
     public function compile(\Twig_Compiler $compiler)
     {
-//        $compiler
-//            ->addDebugInfo($this)
-//            ->write(sprintf("\$this->displayAtom('%s', '%s', \$context);\n", $this->getAttribute('name'), $this->renderNode($compiler, $this->getNode('body'))))
-//        ;
-        
         $compiler
             ->addDebugInfo($this)
             ->write("ob_start();\n")        
