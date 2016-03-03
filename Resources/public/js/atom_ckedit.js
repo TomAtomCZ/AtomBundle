@@ -5,6 +5,7 @@ $(function() {
     var $atoms = $('.atom'),
         $atomConfig = $('#atom-config'),
         saveMsg = function (type) {
+            $('div.ckeditor-save-msg').hide();
             var typeClass,
                 typeMsg;
 
@@ -39,17 +40,14 @@ $(function() {
         useJSON: false,
         useColorIcon: true,
         onSave: function() {
-            $('div.ckeditor-save-msg').hide();
             $('body').prepend(saveMsg());
             return true;
         },
         onSuccess: function() {
-            $('div.ckeditor-save-msg').hide();
             $('body').prepend(saveMsg('ok'));
             return true;
         },
         onFailure: function() {
-            $('div.ckeditor-save-msg').hide();
             $('body').prepend(saveMsg('err'));
             return false;
         }

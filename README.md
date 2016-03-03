@@ -1,6 +1,6 @@
 # __TomAtom/AtomBundle__
 
-### __Symfony3__ Bundle for easy __front-end content editing.__
+### __Symfony__ Bundle for easy __front-end content editing.__
 
 
 #### Dependencies:
@@ -52,3 +52,5 @@ twig:
     <p> I am editable! </p>
 {% endatom %}
 ```
+
+* CKEditor save messages can be styled by targeting `div.ckeditor-save-msg` (`div.ckeditor-save-msg-saving`, `div.ckeditor-save-msg-err`, `div.ckeditor-save-msg-ok`)
