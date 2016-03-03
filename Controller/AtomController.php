@@ -17,10 +17,19 @@ class AtomController extends Controller
      */
     public function saveAction(Request $request)
     {
+        $atomName = $request->request->get('editorID');
+
+        if(!$atomName) {
+            return new JsonResponse([
+                'status' => 'error',
+                'details' => 'The Atom name is not specified'
+            ]);
+        }
+
         $em = $this->getDoctrine()->getManager();
-        
+
         $atom = $em->getRepository('TomAtomAtomBundle:Atom')
-            ->findOneBy(array('name' => $request->get('name')));
+            ->findOneBy(['name' => $atomName]);
 
         if(!$atom)
         {
@@ -30,16 +39,16 @@ class AtomController extends Controller
             ]);
         }
 
-        $atom->setBody($request->get('body'));
+        $atom->setBody($request->request->get('editabledata'));
 
         $em->persist($atom);
-        $em->flush();     
-        
+        $em->flush();
+
         return new JsonResponse([
             'status' => 'ok'
         ]);
     }
-    
+
     /**
      * @Security("has_role('ROLE_SUPER_ADMIN')")
      * @Route("/save-entity", name="atom_entity_save")
@@ -47,7 +56,7 @@ class AtomController extends Controller
     public function saveCustomEntityAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        
+
         $object = $em->getRepository($request->get('entity'))
             ->findOneBy(array('id' => $request->get('id')));
 
@@ -59,7 +68,7 @@ class AtomController extends Controller
             ]);
         }
 
-        call_user_func(array($object, $request->get('method')), $request->get('html')); 
+        call_user_func(array($object, $request->get('method')), $request->get('html'));
 
         $em->persist($object);
         $em->flush();
