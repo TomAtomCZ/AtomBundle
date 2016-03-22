@@ -3,44 +3,53 @@
  */
 $(function() {
     var $atoms = $('.atom'),
-        $atomConfig = $('#atom-config');
-    CKEDITOR.config.toolbar = [
-        { name: 'tools', items: [ 'Maximize', 'ShowBlocks', 'Source' ] },
-        { name: 'clipboard', items: [ 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
-        { name: 'editing', items: [ 'Find', 'Replace' ] },
-        { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat' ] },
-        { name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
-        { name: 'insert', items: [ 'Image', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak' ] },
-        { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
-        { name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
-        { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'Language' ] }
-    ];
+        $atomConfig = $('#atom-config'),
+        saveMsg = function (type) {
+            $('div.ckeditor-save-msg').hide();
+            var typeClass,
+                typeMsg;
 
-    CKEDITOR.disableAutoInline = true;
+            switch (type) {
+                case 'ok':
+                    typeClass = 'ckeditor-save-msg-ok';
+                    typeMsg = 'Saved!';
+                    break;
+                case 'err':
+                    typeClass = 'ckeditor-save-msg-err';
+                    typeMsg = 'Error!';
+                    break;
+                default:
+                    typeClass = 'ckeditor-save-msg-saving';
+                    typeMsg = 'Saving ...';
+                    break;
+            }
+            return '<div class="ckeditor-save-msg '+typeClass+'">'+typeMsg+'</div>';
+        };
+
+    $('body').on('click', 'div.ckeditor-save-msg', function() {
+        $(this).slideUp();
+    });
 
     $atoms.each(function() {
         $(this).attr('contenteditable', true);
-        var atomId = $(this).attr('id');
-        CKEDITOR.inline(atomId, {
-            on: {
-                blur: function(result) {
-                    var html = result.editor.getData();
-
-                    $.ajax({
-                        url: $atomConfig.data('save-url'),
-                        type: 'POST',
-                        data: {
-                            name: atomId,
-                            body: html
-                        },
-                        dataType: 'html'
-                    }).done(function(result) {
-                        console.log(result);
-                    }).fail(function(error) {
-                        console.log(error);
-                    });
-                }
-            }
-        });
     });
+
+    CKEDITOR.config.inlinesave = {
+        postUrl: $atomConfig.data('save-url'),
+        postData: {}, // editorID, editabledata
+        useJSON: false,
+        useColorIcon: true,
+        onSave: function() {
+            $('body').prepend(saveMsg());
+            return true;
+        },
+        onSuccess: function() {
+            $('body').prepend(saveMsg('ok'));
+            return true;
+        },
+        onFailure: function() {
+            $('body').prepend(saveMsg('err'));
+            return false;
+        }
+    };
 });
