@@ -16,19 +16,19 @@
 
 * composer require tomatom/atom-bundle "dev-master"
 
-* `AppKernel.php`
+* `AppKernel.php:`
 ```php
 new TomAtom\AtomBundle\TomAtomAtomBundle(),
 ```
 
-* `routing.yml`
+* `routing.yml:`
 ```yml
 atom:
     resource: "@TomAtomAtomBundle/Controller/"
     type:     annotation
 ```
 
-* `config.yml`
+* `config.yml:`
 ```yml
 # Twig Configuration
 twig:
@@ -36,7 +36,7 @@ twig:
     # ...
 ```
 
-* `::base.html.twig`
+* `::base.html.twig:`
 ```twig
 {% if is_granted('ROLE_SUPER_ADMIN') %}
     <script src="{{ asset('bundles/tomatomatom/js/lib/ckeditor/ckeditor.js') }}"></script>
@@ -53,4 +53,4 @@ twig:
 {% endatom %}
 ```
 
-* CKEditor save messages can be styled by targeting `div.ckeditor-save-msg` (`div.ckeditor-save-msg-saving`, `div.ckeditor-save-msg-err`, `div.ckeditor-save-msg-ok`)
+* CKEditor save messages can be styled by targeting `div.ckeditor-save-msg` (`div.ckeditor-save-msg-saving`, `div.ckeditor-save-msg-err`, `div.ckeditor-save-msg-ok`). They also have `alert` class so they are styled, if you are using Bootstrap.

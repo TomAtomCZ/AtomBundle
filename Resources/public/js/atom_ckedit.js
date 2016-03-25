@@ -1,5 +1,5 @@
 /**
- *
+ * @description Atom frontend functionality
  */
 $(function() {
     var $atoms = $('.atom'),
@@ -23,23 +23,28 @@ $(function() {
                     typeMsg = 'Saving ...';
                     break;
             }
-            return '<div class="ckeditor-save-msg alert '+typeClass+'" style="position: fixed;top: 30%;left: 50%;z-index: 9999; opacity: 0.8;font-size: 2.5em;">'+typeMsg+'</div>';
+            return '<div class="ckeditor-save-msg alert '+typeClass+'" style="position: fixed;top: 45%;z-index: 99999;width: calc(100% - 6em);margin: 0 3em;padding: 1.3em;text-align: center;opacity: 0.8;font-size: 2.5em;">'+typeMsg+'</div>';
         };
 
     $('body').on('click', 'div.ckeditor-save-msg', function() {
         $(this).slideUp();
     });
 
+    // Mark Atoms for CKEditor
     $atoms.each(function() {
         $(this).attr('contenteditable', true);
     });
 
     // Show Atom on mouseover
     $atoms.on('mouseenter', function() {
-        $(this).css('border', '4px dashed #009999');
+        if(!$($(this)[0]).hasClass('cke_focus')) {
+            $(this).css('border', '4px dashed #009999');
+            $(this).css('margin', '-4px');
+        }
     });
-    $atoms.on('mouseleave', function() {
+    $atoms.on('mouseleave focus', function() {
         $(this).css('border', '0');
+        $(this).css('margin', '0');
     });
 
     CKEDITOR.config.inlinesave = {
