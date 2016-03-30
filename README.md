@@ -38,7 +38,7 @@ twig:
 
 * `::base.html.twig`
 ```twig
-{% if is_granted('ROLE_SUPER_ADMIN') %}
+{% if is_granted('ROLE_ATOM_EDIT') %}
     <script src="{{ asset('bundles/tomatomatom/js/lib/ckeditor/ckeditor.js') }}"></script>
     <script src="{{ asset('bundles/tomatomatom/js/atom_ckedit.js') }}"></script>
     {{ render(controller('TomAtomAtomBundle:Atom:_metas')) }}
