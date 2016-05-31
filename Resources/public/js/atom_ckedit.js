@@ -65,4 +65,5 @@ $(function() {
             return false;
         }
     };
+    CKEDITOR.config.uploadUrl = $atomConfig.data('image-upload-url');
 });

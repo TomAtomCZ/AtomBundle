@@ -50,3 +50,5 @@
 >    <p> I am editable! </p>
 >{% endatom %}
 >```
+
+* for drag&drop image uploading from editor, __create upload directory__: `/web/uploads/atom`

@@ -8,6 +8,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class AtomController extends Controller
 {
@@ -75,6 +76,30 @@ class AtomController extends Controller
 
         return new JsonResponse([
             'status' => 'ok'
+        ]);
+    }
+
+    /**
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
+     * @Route("/atom-upload-image", name="atom_upload_image")
+     */
+    public function uploadImageAction(Request $request)
+    {
+        /** @var UploadedFile $file */
+        $file = $request->files->get('upload');
+
+        $fileName = $file->getClientOriginalName() . '_' . md5(uniqid()) . '.' . $file->guessExtension();
+        $uploadDir = $this->get('kernel')->getRootDir() . '/../web/uploads/atom';
+
+        $file->move(
+            $uploadDir,
+            $fileName
+        );
+
+        return new JsonResponse([
+            "uploaded" => 1,
+            "fileName" => $fileName,
+            "url" => $uploadDir
         ]);
     }
 
