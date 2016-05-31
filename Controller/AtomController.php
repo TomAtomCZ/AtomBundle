@@ -90,6 +90,9 @@ class AtomController extends Controller
 
         $fileName = $file->getClientOriginalName() . '_' . md5(uniqid()) . '.' . $file->guessExtension();
         $uploadDir = $this->get('kernel')->getRootDir() . '/../web/uploads/atom';
+//        $assetDirUrl = $request->getUriForPath('/uploads/atom/');
+        $assetDirUrl = $request->getScheme() . '://' . $request->getHttpHost() . $request->getBasePath() . '/uploads/atom';
+
 
         $file->move(
             $uploadDir,
@@ -99,7 +102,8 @@ class AtomController extends Controller
         return new JsonResponse([
             "uploaded" => 1,
             "fileName" => $fileName,
-            "url" => $uploadDir
+            "url" => $assetDirUrl . '/' . $fileName,
+
         ]);
     }
 
