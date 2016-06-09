@@ -73,4 +73,43 @@ abstract class Template extends \Twig_Template
 
         return $result;
     }
+    
+    public function checkAtomLine($name, $body)
+    {
+        $env = $this->kernel->getEnvironment();
+
+        if($env === 'prod') {
+            $atom = $this->em->getRepository('TomAtomAtomBundle:Atom')
+                ->findOneBy(array('name' => $name));
+
+            if(!$atom)
+            {
+                $atom = new Atom();
+                $atom->setName($name);
+                $atom->setBody($body);
+                $this->em->persist($atom);
+                $this->em->flush();
+            }
+            else
+            {
+                $body = $atom->getBody();
+            }
+
+            if($this->ac->isGranted('IS_AUTHENTICATED_FULLY') && $this->ac->isGranted('ROLE_SUPER_ADMIN'))
+            {
+                $result = '<div class="atomline" id="'.$name.'">';
+                $result .= $body;
+                $result .= '</div>';
+            }
+            else
+            {
+                $result = $body;
+            }
+        } else {
+            // we are in `dev` or `test` environment: we want to bypass Atom persisting and loading.
+            $result = $body;
+        }
+
+        return $result;
+    }
 }
