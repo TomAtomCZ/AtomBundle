@@ -91,25 +91,26 @@ $(function() {
         var atomLineId = $(this).attr('id');
         $('#atomLineEditorBody').remove();
         $('body').append($atomLineEditor);
-        $('#atomLineEditor').attr('atomId', atomLineId);
+        $('#atomLineEditor').attr('data-atom-id', atomLineId);
         $('#atomLineEditor').val($(this).html().trim());
     });
 
     $('body').on('click', '#atomLineEditorSendBtn', function () {
         $('body').prepend(saveMsg());
-        $('#atomLineEditorBody').remove();
-        var atomLineId = $('#atomLineEditor').attr('atomId'),
+        var atomLineId = $('#atomLineEditor').attr('data-atom-id'),
             atomLineContent = $('#atomLineEditor').val();
         $.ajax({
             url: $atomConfig.data('save-url'),
             method: 'POST',
             data: {editorID: atomLineId, editabledata: atomLineContent}
         }).success(function (res) {
+            $('div#' + atomLineId).html(atomLineContent);
             $('body').prepend(saveMsg('ok'));
         }).fail(function (err) {
             $('body').prepend(saveMsg('err'));
             console.log(err); // TODO: remove
         });
+        $('#atomLineEditorBody').remove();
     });
 
     $('body').on('click', '#atomLineEditorCancelBtn', function () {
