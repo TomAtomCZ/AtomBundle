@@ -51,4 +51,31 @@
 >{% endatom %}
 >```
 
+* in case you want to edit only text content (like headings or table cells) and don't want to use rich text editor,
+ there is the Atom Line tag (again with _unique_ identifier): `{% atomline unique_identifier_here %}` and closing `{% endatomline %}`.
+>```twig
+><h1>
+>   {% atomline bar %}
+>       I am editable!
+>   {% endatomline %}
+><h1>
+>```
+
+* for editing other entities, there is Atom Entity tag, which takes these arguments:
+
+    * name of Bundle containing desired entity:Entity name (e.g. `AppBundle:Product`)
+
+    * name of method used for saving content (usually some setter)
+
+    * entity id
+    
+* example:
+>```twig
+><div class="product-price">
+>   {% atomentity  AppBundle:Product, setPrice, 123 %}
+>       12345
+>   {% endatomentity %}
+><div>
+>```
+
 * for drag&drop image uploading from editor, __create upload directory__: `/web/uploads/atom`
