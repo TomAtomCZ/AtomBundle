@@ -4,8 +4,11 @@
 $(function() {
     var $atoms = $('.atom'),
         $atomLines = $('.atomline'),
+        $atomEntities = $('.atomentity'),
         $atomLineEditor = '<div style="position: fixed;top: 45%;z-index: 99999;width: calc(100% - 6em);margin: 0 3em;padding: 4em;background: #fff;" id="atomLineEditorBody"><h3>AtomLine editor</h3><input type="text" id="atomLineEditor" style="width: 100%;"><div style="margin-top: 1.5em;"><span id="atomLineEditorSendBtn" style="text-align: center; padding: 1em; background: green;">Save</span><span id="atomLineEditorCancelBtn" style="text-align: center; padding: 1em; margin-left: 1em; background: red;">Cancel</span></div></div>',
+        $atomEntityEditor = '<div style="position: fixed;top: 45%;z-index: 99999;width: calc(100% - 6em);margin: 0 3em;padding: 4em;background: #fff;" id="atomEntityEditorBody"><h3>AtomEntity editor</h3><input type="text" id="atomEntityEditor" style="width: 100%;"><div style="margin-top: 1.5em;"><span id="atomEntityEditorSendBtn" style="text-align: center; padding: 1em; background: green;">Save</span><span id="atomEntityEditorCancelBtn" style="text-align: center; padding: 1em; margin-left: 1em; background: red;">Cancel</span></div></div>',
         $atomConfig = $('#atom-config'),
+        $atomEntityConfig = $('#atom-entity-config'),
         saveMsg = function (type) {
             $('div.ckeditor-save-msg').hide();
             var typeClass,
@@ -115,5 +118,62 @@ $(function() {
 
     $('body').on('click', '#atomLineEditorCancelBtn', function () {
         $('#atomLineEditorBody').remove();
+    });
+
+
+    // AtomEntities
+
+    // Show AtomEntity on mouseover
+    $atomEntities.on('mouseenter', function() {
+        if(!$($(this)[0]).hasClass('cke_focus')) {
+            $(this).css('border', '4px dashed red');
+            $(this).css('margin', '-4px');
+        }
+    });
+    $atomEntities.on('mouseleave focus', function() {
+        $(this).css('border', '0');
+        $(this).css('margin', '0');
+    });
+
+    $atomEntities.on('click', function () {
+        var atomEntityEntity = $(this).data('atom-entity'),
+            atomEntityMethod = $(this).data('atom-method'),
+            atomEntityId = $(this).data('atom-id');
+        $('#atomEntityEditorBody').remove();
+        $('body').append($atomEntityEditor);
+        $('#atomEntityEditor')
+            .attr('data-atom-entity', atomEntityEntity)
+            .attr('data-atom-method', atomEntityMethod)
+            .attr('data-atom-id', atomEntityId)
+            .val($(this).html().trim());
+    });
+
+    $('body').on('click', '#atomEntityEditorSendBtn', function () {
+        $('body').prepend(saveMsg());
+        var atomEntityEntity = $('#atomEntityEditor').data('atom-entity'),
+            atomEntityMethod = $('#atomEntityEditor').data('atom-method'),
+            atomEntityId = $('#atomEntityEditor').data('atom-id'),
+            atomEntityContent = $('#atomEntityEditor').val();
+        $.ajax({
+            url: $atomEntityConfig.data('save-url'),
+            method: 'POST',
+            data: {
+                entity: atomEntityEntity,
+                method: atomEntityMethod,
+                id: atomEntityId,
+                content: atomEntityContent
+            }
+        }).success(function (res) {
+            $('div[data-atom-entity="'+atomEntityEntity+'"][data-atom-id="'+atomEntityId+'"]').html(atomEntityContent);
+            $('body').prepend(saveMsg('ok'));
+        }).fail(function (err) {
+            $('body').prepend(saveMsg('err'));
+            console.log(err); // TODO: remove
+        });
+        $('#atomEntityEditorBody').remove();
+    });
+
+    $('body').on('click', '#atomEntityEditorCancelBtn', function () {
+        $('#atomEntityEditorBody').remove();
     });
 });
