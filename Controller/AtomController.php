@@ -56,20 +56,32 @@ class AtomController extends Controller
      */
     public function saveCustomEntityAction(Request $request)
     {
+        $entityName = $request->request->get('entity');
+        $entityMethod = $request->request->get('method');
+        $entityId = $request->request->get('id');
+        $content = $request->request->get('content');
         $em = $this->getDoctrine()->getManager();
 
-        $object = $em->getRepository($request->get('entity'))
-            ->findOneBy(array('id' => $request->get('id')));
+        if (!$entityName || !$entityMethod || !$entityId) {
+            return new JsonResponse([
+                'status' => 'error',
+                'details' => 'Wrong or null entity data'
+            ]);
+        }
+
+        $object = $em->getRepository($entityName)->findOneBy([
+            'id' => $entityId
+        ]);
 
         if(!$object)
         {
             return new JsonResponse([
                 'status' => 'error',
-                'details' => 'The Atom does not exist'
+                'details' => 'The entity ' . $entityName . ' with id ' . $entityId . ' does not exist'
             ]);
         }
 
-        call_user_func(array($object, $request->get('method')), $request->get('html'));
+        call_user_func([$object, $entityMethod], $content);
 
         $em->persist($object);
         $em->flush();
@@ -114,6 +126,6 @@ class AtomController extends Controller
     {
         $securityContext = $this->container->get('security.authorization_checker');
         $editable = $securityContext->isGranted('IS_AUTHENTICATED_FULLY') && $securityContext->isGranted('ROLE_SUPER_ADMIN');
-        return array('editable' => $editable);
+        return ['editable' => $editable];
     }
 }
