@@ -5,7 +5,7 @@
 
 * `AppKernel.php:`
 >```php
->new TomAtom\AtomBundle\TomAtomAtomBundle(),
+>new Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
 >```
 
 * `config.yml:`
@@ -31,6 +31,8 @@
 >                        dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Translatable/Entity"
 >                        alias: GedmoTranslatable
 >                        is_bundle: false
+>
+># you may want to use translator for handling translations explicitly in your entities (not mandatory for Atoms):
 >                    gedmo_translator:
 >                        type: annotation
 >                        prefix: Gedmo\Translator\Entity
