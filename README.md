@@ -6,13 +6,17 @@
 #### Dependencies:
 
 * symfony/framework-standard-edition ">=2.8|~3.0"
+
+* stof/doctrine-extensions-bundle "~1.2"
  
 * jQuery
 
 
-### Instalation:
+### Installation:
 
 * create project with Symfony framework
+
+* install [stof/doctrine-extensions-bundle "~1.2" - _translatable behavior_](Resources/doc/gedmo-config.md)
 
 * composer require tomatom/atom-bundle "dev-master"
 
@@ -20,6 +24,9 @@
 >```php
 >new TomAtom\AtomBundle\TomAtomAtomBundle(),
 >```
+
+
+### Configuration:
 
 * `routing.yml:`
 >```yml
@@ -30,6 +37,11 @@
 
 * `config.yml:`
 >```yml
+># Make sure translator is uncommented:
+>framework:
+>    translator:      { fallbacks: ["%locale%"] }
+># ...
+>
 ># Twig Configuration
 >twig:
 >    base_template_class: TomAtom\AtomBundle\Twig\Template
@@ -38,10 +50,16 @@
 
 * `::base.html.twig:`
 >```twig
+><script src={{ asset('path/to/jQuery.js') }}></script>
 >{% if is_granted('ROLE_SUPER_ADMIN') %}
 >    {{ render(controller('TomAtomAtomBundle:Atom:_metas')) }}
 >{% endif %}
 >```
+
+* for drag&drop image uploading from editor, __create upload directory__: `/web/uploads/atom`
+
+
+### Usage:
 
 * if you want to use Atom in your templates, add Atom tag with _unique_ identifier: `{% atom unique_identifier_here %}`
     and closing tag `{% endatom %}`. You can add default content between tags, which will be persisted on first load.
@@ -78,4 +96,5 @@
 ><div>
 >```
 
-* for drag&drop image uploading from editor, __create upload directory__: `/web/uploads/atom`
+* when switching between locales by changing `_locale` request parameter, you can easily update atoms in specified language.
+  Also Atom Entities can be translated from frontend, if they have implemented Gedmo Translatable behavior.

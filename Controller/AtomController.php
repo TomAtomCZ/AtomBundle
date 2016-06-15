@@ -14,7 +14,7 @@ class AtomController extends Controller
 {
     /**
      * @Security("has_role('ROLE_SUPER_ADMIN')")
-     * @Route("/save", name="atom_save")
+     * @Route("/{_locale}/save", name="atom_save")
      */
     public function saveAction(Request $request)
     {
@@ -52,7 +52,7 @@ class AtomController extends Controller
 
     /**
      * @Security("has_role('ROLE_SUPER_ADMIN')")
-     * @Route("/save-entity", name="atom_entity_save")
+     * @Route("/{_locale}/save-entity", name="atom_entity_save")
      */
     public function saveCustomEntityAction(Request $request)
     {
@@ -93,7 +93,7 @@ class AtomController extends Controller
 
     /**
      * @Security("has_role('ROLE_SUPER_ADMIN')")
-     * @Route("/atom-upload-image", name="atom_upload_image")
+     * @Route("/{_locale}/atom-upload-image", name="atom_upload_image")
      */
     public function uploadImageAction(Request $request)
     {
