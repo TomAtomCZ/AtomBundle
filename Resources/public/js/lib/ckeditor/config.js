@@ -35,8 +35,6 @@ CKEDITOR.editorConfig = function( config ) {
     // Simplify the dialog windows.
     config.removeDialogTabs = 'image:advanced;link:advanced';
 
-    config.extraPlugins = 'uploadimage';
-
     config.extraPlugins = 'youtube';
     // config.toolbar = [{ name: 'insert', items: ['Image', 'Youtube']}];
     config.youtube_width = '640';
@@ -47,6 +45,6 @@ CKEDITOR.editorConfig = function( config ) {
 
     config.language = 'cs';
 
-    // Add inlinesave plugin
-    config.extraPlugins = 'inlinesave';
+    // Add plugins - this way is possible to add some plugins which does not work when added by config.extraPlugins:
+    config.plugins += ',inlinesave,imagebrowser,uploadimage,youtube';
 };

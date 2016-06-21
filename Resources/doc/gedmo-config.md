@@ -44,6 +44,8 @@
 ># Gedmo Configuration
 >stof_doctrine_extensions:
 >    default_locale: en
+>    translation_fallback: true
+>    persist_default_translation: true
 >    orm:
 >        default:
 >            translatable: true

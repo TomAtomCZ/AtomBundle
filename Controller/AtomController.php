@@ -5,6 +5,7 @@ namespace TomAtom\AtomBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -117,6 +118,25 @@ class AtomController extends Controller
             "url" => $assetDirUrl . '/' . $fileName,
 
         ]);
+    }
+
+    /**
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
+     * @Route("/{_locale}/atom-image-list", name="atom_image_list")
+     */
+    public function imageListAction(Request $request)
+    {
+        $uploadDir = $this->get('kernel')->getRootDir() . '/../web/uploads/atom';
+        $allImages = [];
+        $finder = new Finder();
+        $files = $finder->files()->in($uploadDir);
+        foreach ($files as $file) {
+            array_push($allImages, [
+                'image' => '/uploads/atom/' . $file->getFilename()
+            ]);
+        }
+
+        return new JsonResponse($allImages);
     }
 
     /**
