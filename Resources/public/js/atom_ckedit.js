@@ -43,13 +43,11 @@ $(function() {
     // Show Atom on mouseover
     $atoms.on('mouseenter', function() {
         if(!$($(this)[0]).hasClass('cke_focus')) {
-            $(this).css('border', '4px dashed #009999');
-            $(this).css('margin', '-4px');
+            $(this).css('outline', '4px dashed #009999');
         }
     });
     $atoms.on('mouseleave focus', function() {
-        $(this).css('border', '0');
-        $(this).css('margin', '0');
+        $(this).css('outline', '0');
     });
     $atoms.on('click', function () {
         $('#atomLineEditorBody').remove();
@@ -73,7 +71,9 @@ $(function() {
             return false;
         }
     };
+
     CKEDITOR.config.uploadUrl = $atomConfig.data('image-upload-url');
+    CKEDITOR.config.imageBrowser_listUrl = $atomConfig.data('image-list-url');
 
 
     // AtomLines
@@ -81,16 +81,15 @@ $(function() {
     // Show AtomLine on mouseover
     $atomLines.on('mouseenter', function() {
         if(!$($(this)[0]).hasClass('cke_focus')) {
-            $(this).css('border', '4px dashed #ff8000');
-            $(this).css('margin', '-4px');
+            $(this).css('outline', '4px dashed #ff8000');
         }
     });
     $atomLines.on('mouseleave focus', function() {
-        $(this).css('border', '0');
-        $(this).css('margin', '0');
+        $(this).css('outline', '0');
     });
 
-    $atomLines.on('click', function () {
+    $atomLines.on('click', function (e) {
+        e.preventDefault();
         var atomLineId = $(this).attr('id');
         $('#atomLineEditorBody').remove();
         $('body').append($atomLineEditor);
@@ -126,13 +125,11 @@ $(function() {
     // Show AtomEntity on mouseover
     $atomEntities.on('mouseenter', function() {
         if(!$($(this)[0]).hasClass('cke_focus')) {
-            $(this).css('border', '4px dashed red');
-            $(this).css('margin', '-4px');
+            $(this).css('outline', '4px dashed red');
         }
     });
     $atomEntities.on('mouseleave focus', function() {
-        $(this).css('border', '0');
-        $(this).css('margin', '0');
+        $(this).css('outline', '0');
     });
 
     $atomEntities.on('click', function () {

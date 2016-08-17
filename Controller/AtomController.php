@@ -5,6 +5,7 @@ namespace TomAtom\AtomBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -13,8 +14,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class AtomController extends Controller
 {
     /**
-     * @Security("has_role('ROLE_SUPER_ADMIN')")
-     * @Route("/save", name="atom_save")
+     * @Security("has_role('ROLE_ATOM_EDIT')")
+     * @Route("/{_locale}/save", name="atom_save")
      */
     public function saveAction(Request $request)
     {
@@ -51,8 +52,8 @@ class AtomController extends Controller
     }
 
     /**
-     * @Security("has_role('ROLE_SUPER_ADMIN')")
-     * @Route("/save-entity", name="atom_entity_save")
+     * @Security("has_role('ROLE_ATOM_EDIT')")
+     * @Route("/{_locale}/save-entity", name="atom_entity_save")
      */
     public function saveCustomEntityAction(Request $request)
     {
@@ -92,8 +93,8 @@ class AtomController extends Controller
     }
 
     /**
-     * @Security("has_role('ROLE_SUPER_ADMIN')")
-     * @Route("/atom-upload-image", name="atom_upload_image")
+     * @Security("has_role('ROLE_ATOM_EDIT')")
+     * @Route("/{_locale}/atom-upload-image", name="atom_upload_image")
      */
     public function uploadImageAction(Request $request)
     {
@@ -120,12 +121,31 @@ class AtomController extends Controller
     }
 
     /**
+     * @Security("has_role('ROLE_ATOM_EDIT')")
+     * @Route("/{_locale}/atom-image-list", name="atom_image_list")
+     */
+    public function imageListAction(Request $request)
+    {
+        $uploadDir = $this->get('kernel')->getRootDir() . '/../web/uploads/atom';
+        $allImages = [];
+        $finder = new Finder();
+        $files = $finder->files()->in($uploadDir);
+        foreach ($files as $file) {
+            array_push($allImages, [
+                'image' => '/uploads/atom/' . $file->getFilename()
+            ]);
+        }
+
+        return new JsonResponse($allImages);
+    }
+
+    /**
      * @Template()
      */
     public function _metasAction()
     {
         $securityContext = $this->container->get('security.authorization_checker');
-        $editable = $securityContext->isGranted('IS_AUTHENTICATED_FULLY') && $securityContext->isGranted('ROLE_SUPER_ADMIN');
+        $editable = $securityContext->isGranted('IS_AUTHENTICATED_FULLY') && $securityContext->isGranted('ROLE_ATOM_EDIT');
         return ['editable' => $editable];
     }
 }
