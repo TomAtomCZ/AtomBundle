@@ -3,6 +3,8 @@
 namespace TomAtom\AtomBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
+use Gedmo\Translatable\Translatable;
 
 /**
  * Atom
@@ -10,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table()
  * @ORM\Entity
  */
-class Atom
+class Atom implements Translatable
 {
     /**
      * @var integer
@@ -38,14 +40,23 @@ class Atom
     /**
      * @var string
      *
+     * @Gedmo\Translatable
+     *
      * @ORM\Column(name="body", type="text")
      */
     private $body;
 
     /**
+     * @Gedmo\Locale
+     *
+     * helper field for ephemeral translation lang setting
+     */
+    protected $locale;
+
+    /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -68,7 +79,7 @@ class Atom
     /**
      * Get name
      *
-     * @return string 
+     * @return string
      */
     public function getName()
     {
@@ -91,7 +102,7 @@ class Atom
     /**
      * Get title
      *
-     * @return string 
+     * @return string
      */
     public function getTitle()
     {
@@ -114,10 +125,18 @@ class Atom
     /**
      * Get body
      *
-     * @return string 
+     * @return string
      */
     public function getBody()
     {
         return $this->body;
+    }
+
+    /**
+     * @param string $locale
+     */
+    public function setTranslatableLocale($locale)
+    {
+        $this->locale = $locale;
     }
 }

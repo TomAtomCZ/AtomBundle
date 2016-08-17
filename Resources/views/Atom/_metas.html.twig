@@ -1,9 +1,15 @@
-<span id="atom-config"
-      data-save-url="{{ url('atom_save') }}"
-      data-locale="{{ app.request.locale }}">
-</span>
-<span id="atom-entity-config"
-      data-editable="{{ editable }}"
-      data-save-url="{{ url('atom_entity_save') }}"
-      data-locale="{{ app.request.locale }}">
-</span>
+{% if is_granted('ROLE_ATOM_EDIT') %}
+    <script src="{{ asset('bundles/tomatomatom/js/lib/ckeditor/ckeditor.js') }}"></script>
+    <script src="{{ asset('bundles/tomatomatom/js/atom_ckedit.js') }}"></script>
+    <span id="atom-config"
+          data-save-url="{{ url('atom_save') }}"
+          data-image-upload-url="{{ url('atom_upload_image') }}"
+          data-image-list-url="{{ url('atom_image_list') }}"
+          data-locale="{{ app.request.locale }}">
+    </span>
+    <span id="atom-entity-config"
+          data-editable="{{ editable }}"
+          data-save-url="{{ url('atom_entity_save') }}"
+          data-locale="{{ app.request.locale }}">
+    </span>
+{% endif %}
