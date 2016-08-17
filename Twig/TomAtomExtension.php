@@ -61,6 +61,8 @@ class TomAtomExtension extends \Twig_Extension
     {
         return array(
             new TokenParserAtom(),
+            new TokenParserAtomLine(),
+            new TokenParserAtomEntity(),
         );
     }
 
