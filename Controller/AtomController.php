@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class AtomController extends Controller
 {
     /**
-     * @Security("has_role('ROLE_SUPER_ADMIN')")
+     * @Security("has_role('ROLE_ATOM_EDIT')")
      * @Route("/{_locale}/save", name="atom_save")
      */
     public function saveAction(Request $request)
@@ -52,7 +52,7 @@ class AtomController extends Controller
     }
 
     /**
-     * @Security("has_role('ROLE_SUPER_ADMIN')")
+     * @Security("has_role('ROLE_ATOM_EDIT')")
      * @Route("/{_locale}/save-entity", name="atom_entity_save")
      */
     public function saveCustomEntityAction(Request $request)
@@ -93,7 +93,7 @@ class AtomController extends Controller
     }
 
     /**
-     * @Security("has_role('ROLE_SUPER_ADMIN')")
+     * @Security("has_role('ROLE_ATOM_EDIT')")
      * @Route("/{_locale}/atom-upload-image", name="atom_upload_image")
      */
     public function uploadImageAction(Request $request)
@@ -121,7 +121,7 @@ class AtomController extends Controller
     }
 
     /**
-     * @Security("has_role('ROLE_SUPER_ADMIN')")
+     * @Security("has_role('ROLE_ATOM_EDIT')")
      * @Route("/{_locale}/atom-image-list", name="atom_image_list")
      */
     public function imageListAction(Request $request)
@@ -145,7 +145,7 @@ class AtomController extends Controller
     public function _metasAction()
     {
         $securityContext = $this->container->get('security.authorization_checker');
-        $editable = $securityContext->isGranted('IS_AUTHENTICATED_FULLY') && $securityContext->isGranted('ROLE_SUPER_ADMIN');
+        $editable = $securityContext->isGranted('IS_AUTHENTICATED_FULLY') && $securityContext->isGranted('ROLE_ATOM_EDIT');
         return ['editable' => $editable];
     }
 }

@@ -56,7 +56,7 @@ abstract class Template extends \Twig_Template
                 $body = $atom->getBody();
             }
 
-            if($this->ac->isGranted('IS_AUTHENTICATED_FULLY') && $this->ac->isGranted('ROLE_SUPER_ADMIN'))
+            if($this->ac->isGranted('IS_AUTHENTICATED_FULLY') && $this->ac->isGranted('ROLE_ATOM_EDIT'))
             {
                 $result = '<div class="atom" id="'.$name.'">';
                 $result .= $body;
@@ -95,7 +95,7 @@ abstract class Template extends \Twig_Template
                 $body = $atom->getBody();
             }
 
-            if($this->ac->isGranted('IS_AUTHENTICATED_FULLY') && $this->ac->isGranted('ROLE_SUPER_ADMIN'))
+            if($this->ac->isGranted('IS_AUTHENTICATED_FULLY') && $this->ac->isGranted('ROLE_ATOM_EDIT'))
             {
                 $result = '<div class="atomline" id="'.$name.'">';
                 $result .= $body;
@@ -131,7 +131,7 @@ abstract class Template extends \Twig_Template
                 $body = call_user_func([$atom, 'get' . $prop]);
             }
 
-            if($this->ac->isGranted('IS_AUTHENTICATED_FULLY') && $this->ac->isGranted('ROLE_SUPER_ADMIN'))
+            if($this->ac->isGranted('IS_AUTHENTICATED_FULLY') && $this->ac->isGranted('ROLE_ATOM_EDIT'))
             {
                 $result = '<div class="atomentity" data-atom-entity="'.$name.'" data-atom-id="'.$id.'" data-atom-method="'.$method.'">';
                 $result .= $body;

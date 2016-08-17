@@ -49,14 +49,24 @@
 >    # ...
 >```
 
+* `security.yml:`
+>```yml
+>security:
+>    # ...
+>    # add role 'ROLE_ATOM_EDIT':
+>    role_hierarchy:
+>        ROLE_ATOM_EDIT:   ROLE_USER
+>        ROLE_ADMIN:       ROLE_ATOM_EDIT
+>        ROLE_SUPER_ADMIN: ROLE_ADMIN
+>    # ...
+>```
+
 * `::base.html.twig` (or your base layout):
 >```twig
 >{# don't forget to include your jQuery (tested with 1.8.3 - 2.1.4, others may work, 3.0 doesn't): #}
 ><script src={{ asset('path/to/jQuery.js') }}></script>
 >
->{% if is_granted('ROLE_SUPER_ADMIN') %}
->    {{ render(controller('TomAtomAtomBundle:Atom:_metas')) }}
->{% endif %}
+>{{ render(controller('TomAtomAtomBundle:Atom:_metas')) }}
 >```
 
 * for drag&drop image uploading from editor, __create upload directory__: `/web/uploads/atom`
