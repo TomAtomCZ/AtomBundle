@@ -74,6 +74,9 @@
 
 ### Usage:
 
+* __Atoms intentionally works only in `prod` environment!__ 
+ They are disabled in `test`, `dev` and all others, so you can always see updated changes right away.
+
 * there are currently 3 __Atom__ types:
 >* `atom` - __Atom__ with rich text editor ([CKEditor](http://ckeditor.com/))
 >* `atomline` - __Atom Line__ for editing plaintext inside fixed html tags
@@ -111,8 +114,10 @@
 ><div>
 >```
 
+### Editable mode
+* entering page with __Atoms__ in `prod` environment as user with role `ROLE_ATOM_EDIT` unlocks _editable mode_, which __can be enabled or disabled__ by icon in bottom-right corner of browser screen.
 
-#### Translations:
+### Translations:
 
 * when switching between locales by changing `_locale` request parameter, you can easily update atoms in specified language.
   Also Atom Entities can be translated from frontend, if they have implemented Gedmo Translatable behavior.

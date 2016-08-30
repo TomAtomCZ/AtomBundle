@@ -5,10 +5,12 @@ $(function() {
     var $atoms = $('.atom'),
         $atomLines = $('.atomline'),
         $atomEntities = $('.atomentity'),
-        $atomLineEditor = '<div style="position: fixed;top: 45%;z-index: 99999;width: calc(100% - 6em);margin: 0 3em;padding: 4em;background: #fff;" id="atomLineEditorBody"><h3>AtomLine editor</h3><input type="text" id="atomLineEditor" style="width: 100%;"><div style="margin-top: 1.5em;"><span id="atomLineEditorSendBtn" style="text-align: center; padding: 1em; background: green;">Save</span><span id="atomLineEditorCancelBtn" style="text-align: center; padding: 1em; margin-left: 1em; background: red;">Cancel</span></div></div>',
-        $atomEntityEditor = '<div style="position: fixed;top: 45%;z-index: 99999;width: calc(100% - 6em);margin: 0 3em;padding: 4em;background: #fff;" id="atomEntityEditorBody"><h3>AtomEntity editor</h3><input type="text" id="atomEntityEditor" style="width: 100%;"><div style="margin-top: 1.5em;"><span id="atomEntityEditorSendBtn" style="text-align: center; padding: 1em; background: green;">Save</span><span id="atomEntityEditorCancelBtn" style="text-align: center; padding: 1em; margin-left: 1em; background: red;">Cancel</span></div></div>',
+        $atomLineEditor = '<div id="atom-line-editor-body"><h3>Edit text</h3><input type="text" id="atom-line-editor"><div><div id="atom-line-editor-cancel-btn">Cancel</div><div id="atom-line-editor-send-btn">Save</div></div></div>',
+        $atomEntityEditor = '<div id="atom-entity-editor-body"><h3>Edit property</h3><input type="text" id="atom-entity-editor"><div><div id="atom-entity-editor-cancel-btn">Cancel</div><div id="#atom-line-editor-send-btn">Save</div></div></div>',
         $atomConfig = $('#atom-config'),
         $atomEntityConfig = $('#atom-entity-config'),
+        atomsEditable = !!JSON.parse(window.localStorage.getItem('atoms_enabled')),
+        $atomToggleBtn = '<div class="atoms-' + (atomsEditable ? "enabled" : "disabled") + '" id="atom-toggle-btn" title="Toggle Atoms"></div>',
         saveMsg = function (type) {
             $('div.ckeditor-save-msg').hide();
             var typeClass,
@@ -16,161 +18,184 @@ $(function() {
 
             switch (type) {
                 case 'ok':
-                    typeClass = 'ckeditor-save-msg-ok alert-success';
+                    typeClass = 'ckeditor-save-msg-ok';
                     typeMsg = 'Saved!';
                     break;
                 case 'err':
-                    typeClass = 'ckeditor-save-msg-err alert-danger';
+                    typeClass = 'ckeditor-save-msg-err';
                     typeMsg = 'Error!';
                     break;
                 default:
-                    typeClass = 'ckeditor-save-msg-saving alert-info';
+                    typeClass = 'ckeditor-save-msg-saving';
                     typeMsg = 'Saving ...';
                     break;
             }
-            return '<div class="ckeditor-save-msg alert '+typeClass+'" style="position: fixed;top: 45%;z-index: 99999;width: calc(100% - 6em);margin: 0 3em;padding: 1.3em;text-align: center;opacity: 0.8;font-size: 2.5em;">'+typeMsg+'</div>';
+            return '<div class="ckeditor-save-msg '+typeClass+'">'+typeMsg+'</div>';
         };
 
-    $('body').on('click', 'div.ckeditor-save-msg', function() {
+    $('body').on('click mouseenter', 'div.ckeditor-save-msg', function() {
         $(this).fadeOut();
     });
 
-    // Mark Atoms for CKEditor
-    $atoms.each(function() {
-        $(this).attr('contenteditable', true);
-    });
-
-    // Show Atom on mouseover
-    $atoms.on('mouseenter', function() {
-        if(!$($(this)[0]).hasClass('cke_focus')) {
-            $(this).css('outline', '4px dashed #009999');
-        }
-    });
-    $atoms.on('mouseleave focus', function() {
-        $(this).css('outline', '0');
-    });
-    $atoms.on('click', function () {
-        $('#atomLineEditorBody').remove();
-    });
-
-    CKEDITOR.config.inlinesave = {
-        postUrl: $atomConfig.data('save-url'),
-        postData: {}, // editorID, editabledata
-        useJSON: false,
-        useColorIcon: true,
-        onSave: function() {
-            $('body').prepend(saveMsg());
-            return true;
-        },
-        onSuccess: function() {
-            $('body').prepend(saveMsg('ok'));
-            return true;
-        },
-        onFailure: function() {
-            $('body').prepend(saveMsg('err'));
-            return false;
-        }
-    };
-
-    CKEDITOR.config.uploadUrl = $atomConfig.data('image-upload-url');
-    CKEDITOR.config.imageBrowser_listUrl = $atomConfig.data('image-list-url');
-
-
-    // AtomLines
-
-    // Show AtomLine on mouseover
-    $atomLines.on('mouseenter', function() {
-        if(!$($(this)[0]).hasClass('cke_focus')) {
-            $(this).css('outline', '4px dashed #ff8000');
-        }
-    });
-    $atomLines.on('mouseleave focus', function() {
-        $(this).css('outline', '0');
-    });
-
-    $atomLines.on('click', function (e) {
-        e.preventDefault();
-        var atomLineId = $(this).attr('id');
-        $('#atomLineEditorBody').remove();
-        $('body').append($atomLineEditor);
-        $('#atomLineEditor').attr('data-atom-id', atomLineId);
-        $('#atomLineEditor').val($(this).html().trim());
-    });
-
-    $('body').on('click', '#atomLineEditorSendBtn', function () {
-        $('body').prepend(saveMsg());
-        var atomLineId = $('#atomLineEditor').attr('data-atom-id'),
-            atomLineContent = $('#atomLineEditor').val();
-        $.ajax({
-            url: $atomConfig.data('save-url'),
-            method: 'POST',
-            data: {editorID: atomLineId, editabledata: atomLineContent}
-        }).success(function (res) {
-            $('div#' + atomLineId).html(atomLineContent);
-            $('body').prepend(saveMsg('ok'));
-        }).fail(function (err) {
-            $('body').prepend(saveMsg('err'));
-            console.log(err); // TODO: remove
+    if (atomsEditable) {
+        // Mark Atoms for CKEditor
+        $atoms.each(function() {
+            $(this).attr('contenteditable', true);
         });
-        $('#atomLineEditorBody').remove();
-    });
 
-    $('body').on('click', '#atomLineEditorCancelBtn', function () {
-        $('#atomLineEditorBody').remove();
-    });
+        // Show Atom on mouseover
+        $atoms.on('mouseenter', function() {
+            if(!$($(this)[0]).hasClass('cke_focus')) {
+                $(this).css('outline', '4px dashed #009999');
+            }
+        });
+        $atoms.on('mouseleave focus', function() {
+            $(this).css('outline', '0');
+        });
+        $atoms.on('click', function () {
+            $('#atom-line-editor-body').remove();
+        });
+
+        CKEDITOR.config.inlinesave = {
+            postUrl: $atomConfig.data('save-url'),
+            postData: {}, // editorID, editabledata
+            useJSON: false,
+            useColorIcon: true,
+            onSave: function() {
+                $('body').prepend(saveMsg());
+                return true;
+            },
+            onSuccess: function() {
+                $('body').prepend(saveMsg('ok'));
+                return true;
+            },
+            onFailure: function() {
+                $('body').prepend(saveMsg('err'));
+                return false;
+            }
+        };
+
+        CKEDITOR.config.uploadUrl = $atomConfig.data('image-upload-url');
+        CKEDITOR.config.imageBrowser_listUrl = $atomConfig.data('image-list-url');
 
 
-    // AtomEntities
+        // AtomLines
 
-    // Show AtomEntity on mouseover
-    $atomEntities.on('mouseenter', function() {
-        if(!$($(this)[0]).hasClass('cke_focus')) {
-            $(this).css('outline', '4px dashed red');
-        }
-    });
-    $atomEntities.on('mouseleave focus', function() {
-        $(this).css('outline', '0');
-    });
+        // Show AtomLine on mouseover
+        $atomLines.on('mouseenter', function() {
+            if(!$($(this)[0]).hasClass('cke_focus')) {
+                $(this).css('outline', '4px dashed #ff8000');
+            }
+        });
+        $atomLines.on('mouseleave focus', function() {
+            $(this).css('outline', '0');
+        });
 
-    $atomEntities.on('click', function () {
-        var atomEntityEntity = $(this).data('atom-entity'),
-            atomEntityMethod = $(this).data('atom-method'),
-            atomEntityId = $(this).data('atom-id');
-        $('#atomEntityEditorBody').remove();
-        $('body').append($atomEntityEditor);
-        $('#atomEntityEditor')
-            .attr('data-atom-entity', atomEntityEntity)
-            .attr('data-atom-method', atomEntityMethod)
-            .attr('data-atom-id', atomEntityId)
-            .val($(this).html().trim());
-    });
+        $atomLines.on('click', function (e) {
+            e.preventDefault();
+            var atomLineId = $(this).attr('id');
+            $('#atom-line-editor-body').remove();
+            $('body').append($atomLineEditor);
+            $('#atom-line-editor').attr('data-atom-id', atomLineId);
+            $('#atom-line-editor').val($(this).html().trim());
+        });
 
-    $('body').on('click', '#atomEntityEditorSendBtn', function () {
-        $('body').prepend(saveMsg());
-        var atomEntityEntity = $('#atomEntityEditor').data('atom-entity'),
-            atomEntityMethod = $('#atomEntityEditor').data('atom-method'),
-            atomEntityId = $('#atomEntityEditor').data('atom-id'),
-            atomEntityContent = $('#atomEntityEditor').val();
+        $('body').on('click', '#atom-line-editor-send-btn', function () {
+            $('body').prepend(saveMsg());
+            var atomLineId = $('#atom-line-editor').attr('data-atom-id'),
+                atomLineContent = $('#atom-line-editor').val();
+            $.ajax({
+                url: $atomConfig.data('save-url'),
+                method: 'POST',
+                data: {editorID: atomLineId, editabledata: atomLineContent}
+            }).success(function (res) {
+                $('div#' + atomLineId).html(atomLineContent);
+                $('body').prepend(saveMsg('ok'));
+            }).fail(function (err) {
+                $('body').prepend(saveMsg('err'));
+                console.log(err); // TODO: remove
+            });
+            $('#atom-line-editor-body').remove();
+        });
+
+        $('body').on('click', '#atom-line-editor-cancel-btn', function () {
+            $('#atom-line-editor-body').remove();
+        });
+
+
+        // AtomEntities
+
+        // Show AtomEntity on mouseover
+        $atomEntities.on('mouseenter', function() {
+            if(!$($(this)[0]).hasClass('cke_focus')) {
+                $(this).css('outline', '4px dashed red');
+            }
+        });
+        $atomEntities.on('mouseleave focus', function() {
+            $(this).css('outline', '0');
+        });
+
+        $atomEntities.on('click', function () {
+            var atomEntityEntity = $(this).data('atom-entity'),
+                atomEntityMethod = $(this).data('atom-method'),
+                atomEntityId = $(this).data('atom-id');
+            $('#atom-entity-editor-body').remove();
+            $('body').append($atomEntityEditor);
+            $('#atom-entity-editor')
+                .attr('data-atom-entity', atomEntityEntity)
+                .attr('data-atom-method', atomEntityMethod)
+                .attr('data-atom-id', atomEntityId)
+                .val($(this).html().trim());
+        });
+
+        $('body').on('click', '#atom-line-editor-send-btn', function () {
+            $('body').prepend(saveMsg());
+            var atomEntityEntity = $('#atom-entity-editor').data('atom-entity'),
+                atomEntityMethod = $('#atom-entity-editor').data('atom-method'),
+                atomEntityId = $('#atom-entity-editor').data('atom-id'),
+                atomEntityContent = $('#atom-entity-editor').val();
+            $.ajax({
+                url: $atomEntityConfig.data('save-url'),
+                method: 'POST',
+                data: {
+                    entity: atomEntityEntity,
+                    method: atomEntityMethod,
+                    id: atomEntityId,
+                    content: atomEntityContent
+                }
+            }).success(function (res) {
+                $('div[data-atom-entity="'+atomEntityEntity+'"][data-atom-id="'+atomEntityId+'"]').html(atomEntityContent);
+                $('body').prepend(saveMsg('ok'));
+            }).fail(function (err) {
+                $('body').prepend(saveMsg('err'));
+                console.log(err); // TODO: remove
+            });
+            $('#atom-entity-editor-body').remove();
+        });
+
+        $('body').on('click', '#atom-entity-editor-cancel-btn', function () {
+            $('#atom-entity-editor-body').remove();
+        });
+    }
+
+    // Atoms Toggle
+    $('body').append($atomToggleBtn);
+    $('body').on('click', '#atom-toggle-btn', function (event) {
         $.ajax({
-            url: $atomEntityConfig.data('save-url'),
+            url: $atomConfig.data('toggle-editable'),
             method: 'POST',
             data: {
-                entity: atomEntityEntity,
-                method: atomEntityMethod,
-                id: atomEntityId,
-                content: atomEntityContent
+                enabled: !!JSON.parse(window.localStorage.getItem('atoms_enabled'))
             }
         }).success(function (res) {
-            $('div[data-atom-entity="'+atomEntityEntity+'"][data-atom-id="'+atomEntityId+'"]').html(atomEntityContent);
-            $('body').prepend(saveMsg('ok'));
+            if (res.status == 'ok') {
+                window.localStorage.setItem('atoms_enabled', JSON.stringify(res.details));
+            }
+            console.log('Atoms toggle response: ', res); // TODO: remove
         }).fail(function (err) {
-            $('body').prepend(saveMsg('err'));
-            console.log(err); // TODO: remove
+            console.log('Atoms toggle ERROR: ', err); // TODO: remove
+        }).always(function () {
+            window.location.reload();
         });
-        $('#atomEntityEditorBody').remove();
-    });
-
-    $('body').on('click', '#atomEntityEditorCancelBtn', function () {
-        $('#atomEntityEditorBody').remove();
     });
 });

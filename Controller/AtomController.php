@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use TomAtom\AtomBundle\Utils\AtomSettings;
 
 class AtomController extends Controller
 {
@@ -137,6 +138,24 @@ class AtomController extends Controller
         }
 
         return new JsonResponse($allImages);
+    }
+
+    /**
+     * @Security("has_role('ROLE_ATOM_EDIT')")
+     * @Route("/{_locale}/atom-toggle", name="atom_toggle_enabled")
+     */
+    public function atomsToggleAction(Request $request)
+    {
+        $enabled = $request->request->get('enabled');
+        if ($enabled && $enabled !== 'false') {
+            $enabled = false;
+        } else {
+            $enabled = true;
+        }
+        return new JsonResponse([
+            'status' => 'ok',
+            'details' => $enabled,
+        ]);
     }
 
     /**
