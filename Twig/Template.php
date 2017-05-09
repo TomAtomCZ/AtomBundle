@@ -97,9 +97,9 @@ abstract class Template extends \Twig_Template
 
             if($this->ac->isGranted('IS_AUTHENTICATED_FULLY') && $this->ac->isGranted('ROLE_ATOM_EDIT'))
             {
-                $result = '<div class="atomline" id="'.$name.'">';
+                $result = '<span class="atomline" id="'.$name.'">';
                 $result .= $body;
-                $result .= '</div>';
+                $result .= '</span>';
             }
             else
             {
