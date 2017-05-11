@@ -9,7 +9,7 @@ use Gedmo\Translatable\Translatable;
 /**
  * Atom
  *
- * @ORM\Table()
+ * @ORM\Table(name="atom")
  * @ORM\Entity
  */
 class Atom implements Translatable
