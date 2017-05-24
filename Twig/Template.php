@@ -7,7 +7,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-abstract class Template extends \Twig_Template
+class Template extends \Twig_Template
 {
     /**
      * @var ObjectManager
@@ -34,6 +34,10 @@ abstract class Template extends \Twig_Template
         $this->ac = $taExt->getAuthorizationChecker();
         $this->kernel = $taExt->getKernel();
     }
+
+    // todo: test (fix abstract class bug with new twig on sf > 2.3)
+    protected function doDisplay(array $context, array $blocks = array()) {}
+    public function getTemplateName() {}
 
     public function checkAtom($name, $body)
     {
