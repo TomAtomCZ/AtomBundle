@@ -35,7 +35,7 @@ CKEDITOR.editorConfig = function( config ) {
     // Simplify the dialog windows.
     config.removeDialogTabs = 'image:advanced;link:advanced';
 
-    config.extraPlugins = 'youtube';
+    config.extraPlugins = 'sourcedialog,youtube';
     // config.toolbar = [{ name: 'insert', items: ['Image', 'Youtube']}];
     config.youtube_width = '640';
     config.youtube_height = '480';
