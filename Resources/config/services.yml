@@ -4,6 +4,6 @@ services:
         tags:
             - { name: twig.extension } 
         arguments:
-            em: "@doctrine.orm.entity_manager"  
-            sc: "@security.authorization_checker"
-            kernel: "@kernel"
+            - "@doctrine.orm.entity_manager"  
+            - "@security.authorization_checker"
+            - "@kernel"
