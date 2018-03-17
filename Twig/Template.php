@@ -28,7 +28,7 @@ class Template extends \Twig_Template
     {
         parent::__construct($env);
 
-        $taExt = $env->getExtension('tom_atom_extension');
+        $taExt = $env->getExtension(TomAtomExtension::class);
 
         $this->em = $taExt->getEntityManager();
         $this->ac = $taExt->getAuthorizationChecker();
