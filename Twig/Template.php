@@ -35,10 +35,6 @@ class Template extends \Twig_Template
         $this->kernel = $taExt->getKernel();
     }
 
-    // todo: test (fix abstract class bug with new twig on sf > 2.3)
-    protected function doDisplay(array $context, array $blocks = array()) {}
-    public function getTemplateName() {}
-
     public function checkAtom($name, $body)
     {
         $env = $this->kernel->getEnvironment();
@@ -77,7 +73,7 @@ class Template extends \Twig_Template
 
         return $result;
     }
-    
+
     public function checkAtomLine($name, $body)
     {
         $env = $this->kernel->getEnvironment();
@@ -152,4 +148,9 @@ class Template extends \Twig_Template
 
         return $result;
     }
+
+    // must be implemented, will be overloaded in final template
+    public function getTemplateName() {}
+    public function getDebugInfo() {}
+    protected function doDisplay(array $context, array $blocks = array()) {}
 }
