@@ -11,9 +11,9 @@
     ],
     "license" : "MIT",
     "require" : {
-        "php": ">=5.5.9",
-        "symfony/framework-bundle": ">=2.8|~3.1",
-        "stof/doctrine-extensions-bundle":  "~1.2"
+        "php": ">=7.0",
+        "symfony/framework-bundle": "~5.1",
+        "antishov/doctrine-extensions-bundle": "^1.4"
     },
     "autoload" : {
         "psr-0" : {
