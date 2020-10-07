@@ -17,7 +17,7 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
+        $treeBuilder = new TreeBuilder('tom_atom_atom');
         $rootNode = $treeBuilder->getRootNode();
 
         // Here you should define the parameters that are allowed to
