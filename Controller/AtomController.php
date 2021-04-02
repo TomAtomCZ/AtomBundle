@@ -2,9 +2,10 @@
 
 namespace TomAtom\AtomBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -12,10 +13,10 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use TomAtom\AtomBundle\Utils\AtomSettings;
 
-class AtomController extends Controller
+class AtomController extends AbstractController
 {
     /**
-     * @Security("has_role('ROLE_ATOM_EDIT')")
+     * @Security("is_granted('ROLE_ATOM_EDIT')")
      * @Route("/{_locale}/save", name="atom_save")
      */
     public function saveAction(Request $request)
@@ -42,10 +43,26 @@ class AtomController extends Controller
             ]);
         }
 
-        $atom->setBody($request->request->get('editabledata'));
-
-        $em->persist($atom);
-        $em->flush();
+        try {
+            $atom->setBody($request->request->get('editabledata'));
+            $em->persist($atom);
+            $em->flush();
+//            $fs = new Filesystem();
+//            $fs->remove($this->container->getParameter('kernel.cache_dir'));
+            $cacheDriverArr = new \Doctrine\Common\Cache\ArrayCache();
+            $cacheDriverArr->deleteAll();
+            if (function_exists('apcu_fetch')) {
+                $cacheDriverApc = new \Doctrine\Common\Cache\ApcuCache();
+                $cacheDriverApc->deleteAll();
+            }
+            if (class_exists('Memcache')) {
+                $cacheDriverMem = new \Doctrine\Common\Cache\MemcachedCache();
+                $cacheDriverMem->deleteAll();
+            }
+//            nope TODO resolve how to clear old data from cache..
+//            $cacheDriver = $entityManager->getConfiguration()->getResultCacheImpl();
+//            $cacheDriver->deleteAll(); // to delete all cache entries $cacheDriver->deleteAll();
+        } catch (\Exception $e) {}
 
         return new JsonResponse([
             'status' => 'ok'
@@ -53,7 +70,7 @@ class AtomController extends Controller
     }
 
     /**
-     * @Security("has_role('ROLE_ATOM_EDIT')")
+     * @Security("is_granted('ROLE_ATOM_EDIT')")
      * @Route("/{_locale}/save-entity", name="atom_entity_save")
      */
     public function saveCustomEntityAction(Request $request)
@@ -94,7 +111,7 @@ class AtomController extends Controller
     }
 
     /**
-     * @Security("has_role('ROLE_ATOM_EDIT')")
+     * @Security("is_granted('ROLE_ATOM_EDIT')")
      * @Route("/{_locale}/atom-upload-image", name="atom_upload_image")
      */
     public function uploadImageAction(Request $request)
@@ -122,7 +139,7 @@ class AtomController extends Controller
     }
 
     /**
-     * @Security("has_role('ROLE_ATOM_EDIT')")
+     * @Security("is_granted('ROLE_ATOM_EDIT')")
      * @Route("/{_locale}/atom-image-list", name="atom_image_list")
      */
     public function imageListAction(Request $request)
@@ -141,7 +158,7 @@ class AtomController extends Controller
     }
 
     /**
-     * @Security("has_role('ROLE_ATOM_EDIT')")
+     * @Security("is_granted('ROLE_ATOM_EDIT')")
      * @Route("/{_locale}/atom-toggle", name="atom_toggle_enabled")
      */
     public function atomsToggleAction(Request $request)

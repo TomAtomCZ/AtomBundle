@@ -5,8 +5,10 @@ namespace TomAtom\AtomBundle\Twig;
 use \Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 use \Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\HttpKernel\KernelInterface;
+use TomAtom\AtomBundle\Services\NodeHelper;
+use Twig\Extension\AbstractExtension;
 
-class TomAtomExtension extends \Twig_Extension
+class TomAtomExtension extends AbstractExtension
 {
     /**
      * @var ObjectManager
@@ -23,11 +25,22 @@ class TomAtomExtension extends \Twig_Extension
      */
     protected $kernel;
 
-    public function __construct(ObjectManager $em, AuthorizationChecker $ac, KernelInterface $kernelInterface)
+    /**
+     * @var NodeHelper
+     */
+    protected $nodeHelper;
+
+    /**
+     * @var AtomNodeVisitor
+     */
+    protected $atomNodeVisitor;
+
+    public function __construct(ObjectManager $em, AuthorizationChecker $ac, KernelInterface $kernelInterface, NodeHelper $nh)
     {
         $this->em = $em;
         $this->ac = $ac;
         $this->kernel = $kernelInterface;
+        $this->nodeHelper = $nh;
     }
 
     /**
@@ -59,11 +72,21 @@ class TomAtomExtension extends \Twig_Extension
 
     public function getTokenParsers()
     {
-        return array(
+        return [
             new TokenParserAtom(),
             new TokenParserAtomLine(),
             new TokenParserAtomEntity(),
-        );
+        ];
+    }
+
+    public function getNodeVisitors(): array
+    {
+        return [$this->getTranslationNodeVisitor()];
+    }
+
+    public function getTranslationNodeVisitor(): AtomNodeVisitor
+    {
+        return $this->atomNodeVisitor ?: $this->atomNodeVisitor = new AtomNodeVisitor($this->nodeHelper);
     }
 
     public function getName()
