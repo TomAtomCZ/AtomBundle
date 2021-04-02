@@ -2,7 +2,12 @@
 
 namespace TomAtom\AtomBundle\Twig;
 
-class NodeAtomEntity extends \Twig_Node implements \Twig_NodeOutputInterface
+use Twig\Compiler;
+use Twig\Node\Node;
+use Twig\Node\NodeOutputInterface;
+
+
+class NodeAtomEntity extends Node implements NodeOutputInterface
 {
     /**
      * @var string $entityName
@@ -19,7 +24,7 @@ class NodeAtomEntity extends \Twig_Node implements \Twig_NodeOutputInterface
      */
     public $entityId;
 
-    public function __construct($name, \Twig_Node $body, $lineno, $tag = null, $entityName, $entityMethod, $entityId)
+    public function __construct($name, Node $body, $lineno, $tag = null, $entityName, $entityMethod, $entityId)
     {
         $this->entityName = $entityName;
         $this->entityMethod = $entityMethod->getAttribute('name');
@@ -37,17 +42,17 @@ class NodeAtomEntity extends \Twig_Node implements \Twig_NodeOutputInterface
     /**
      * Compiles the node to PHP.
      *
-     * @param Twig_Compiler A Twig_Compiler instance
+     * @param Compiler A Twig_Compiler instance
      */
-    public function compile(\Twig_Compiler $compiler)
+    public function compile(Compiler $compiler)
     {
         $compiler
             ->addDebugInfo($this)
-            ->write("ob_start();\n")        
+            ->write("ob_start();\n")
             ->subcompile($this->getNode('body'))
-            ->write('$body = ob_get_clean();'."\n")        
+            ->write('$body = ob_get_clean();'."\n")
             ->write('$body = $this->checkAtomEntity("'.$this->entityName.'", "'.$this->entityMethod.'", "'.$this->entityId.'", $body);'."\n")
-            ->write('echo $body;'."\n")            
+            ->write('echo $body;'."\n")
         ;
     }
 }

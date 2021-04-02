@@ -2,8 +2,24 @@ services:
     tom_atom.twig.atom_extension:
         class: TomAtom\AtomBundle\Twig\TomAtomExtension
         tags:
-            - { name: twig.extension } 
+            - { name: twig.extension }
         arguments:
-            em: "@doctrine.orm.entity_manager"  
-            sc: "@security.authorization_checker"
-            kernel: "@kernel"
+            - "@doctrine.orm.entity_manager"
+            - "@security.authorization_checker"
+            - "@kernel"
+            - "@tom_atom.service.node_helper"
+#    tom_atom.twig.node_visitor:
+#        class: TomAtom\AtomBundle\Twig\AtomNodeVisitor
+#        arguments:
+#            - "@tom_atom.service.node_helper"
+    tom_atom.service.node_helper:
+        class: TomAtom\AtomBundle\Services\NodeHelper
+        arguments:
+            - "@doctrine.orm.entity_manager"
+            - "@security.authorization_checker"
+            - "@kernel"
+    TomAtom\AtomBundle\Controller\:
+        calls:
+            - setContainer: [ '@service_container' ]
+        resource: '../../Controller'
+        tags: [ 'controller.service_arguments' ]

@@ -9,9 +9,7 @@
     "keywords" : [
         "atom bundle"
     ],
-    "license" : [
-        "GPLV2"
-    ],
+    "license" : "MIT",
     "require" : {
         "php": ">=7.0",
         "symfony/framework-bundle": "~5.1",

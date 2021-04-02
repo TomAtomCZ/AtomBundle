@@ -2,39 +2,45 @@
 
 namespace TomAtom\AtomBundle\Twig;
 
+use Twig\Node\Node;
+use Twig\Node\NodeOutputInterface;
+use Twig\Node\PrintNode;
+use Twig\Token;
+use Twig\TokenParser\AbstractTokenParser;
 
-class TokenParserAtomLine extends \Twig_TokenParser
-{        
+
+class TokenParserAtomLine extends AbstractTokenParser
+{
     /**
      * Parses a token and returns a node.
      *
-     * @param Twig_Token $token A Twig_Token instance
+     * @param Token $token A Twig_Token instance
      *
-     * @return Twig_NodeInterface A Twig_NodeInterface instance
+     * @return NodeOutputInterface A Twig_NodeInterface instance
      */
-    public function parse(\Twig_Token $token)
+    public function parse(Token $token)
     {
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
-        $name = $stream->expect(\Twig_Token::NAME_TYPE)->getValue();
-        
-        if ($stream->nextIf(\Twig_Token::BLOCK_END_TYPE)) 
+        $name = $stream->expect(Token::NAME_TYPE)->getValue();
+
+        if ($stream->nextIf(Token::BLOCK_END_TYPE))
         {
             $body = $this->parser->subparse(array($this, 'decideAtomLineEnd'), true);
-        } 
-        else 
+        }
+        else
         {
-            $body = new \Twig_Node(array(
-                new \Twig_Node_Print($this->parser->getExpressionParser()->parseExpression(), $lineno),
+            $body = new Node(array(
+                new PrintNode($this->parser->getExpressionParser()->parseExpression(), $lineno),
             ));
         }
 
-        $stream->expect(\Twig_Token::BLOCK_END_TYPE);
+        $stream->expect(Token::BLOCK_END_TYPE);
 
         return new NodeAtomLine($name, $body, $lineno);
     }
 
-    public function decideAtomLineEnd(\Twig_Token $token)
+    public function decideAtomLineEnd(Token $token)
     {
         return $token->test('endatomline');
     }

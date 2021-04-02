@@ -6,8 +6,10 @@ use TomAtom\AtomBundle\Entity\Atom;
 use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Twig\Environment;
 
-class Template extends \Twig_Template
+
+class Template extends \Twig\Template
 {
     /**
      * @var ObjectManager
@@ -24,7 +26,7 @@ class Template extends \Twig_Template
      */
     protected $kernel;
 
-    public function __construct(\Twig_Environment $env)
+    public function __construct(Environment $env)
     {
         parent::__construct($env);
 
