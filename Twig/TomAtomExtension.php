@@ -3,7 +3,7 @@
 namespace TomAtom\AtomBundle\Twig;
 
 use \Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
-use \Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpKernel\KernelInterface;
 use TomAtom\AtomBundle\Services\NodeHelper;
 use Twig\Extension\AbstractExtension;
@@ -11,7 +11,7 @@ use Twig\Extension\AbstractExtension;
 class TomAtomExtension extends AbstractExtension
 {
     /**
-     * @var ObjectManager
+     * @var EntityManager
      */
     protected $em;
 
@@ -35,7 +35,7 @@ class TomAtomExtension extends AbstractExtension
      */
     protected $atomNodeVisitor;
 
-    public function __construct(ObjectManager $em, AuthorizationChecker $ac, KernelInterface $kernelInterface, NodeHelper $nh)
+    public function __construct(EntityManager $em, AuthorizationChecker $ac, KernelInterface $kernelInterface, NodeHelper $nh)
     {
         $this->em = $em;
         $this->ac = $ac;
@@ -45,7 +45,7 @@ class TomAtomExtension extends AbstractExtension
 
     /**
      *
-     * @return ObjectManager
+     * @return EntityManager
      */
     public function getEntityManager()
     {
