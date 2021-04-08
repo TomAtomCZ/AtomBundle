@@ -3,7 +3,7 @@
 namespace TomAtom\AtomBundle\Twig;
 
 
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 use TomAtom\AtomBundle\Entity\Atom;

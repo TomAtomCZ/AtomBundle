@@ -4,7 +4,7 @@ namespace TomAtom\AtomBundle\Twig;
 
 use TomAtom\AtomBundle\Entity\Atom;
 use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Twig\Environment;
 
@@ -12,7 +12,7 @@ use Twig\Environment;
 class Template extends \Twig\Template
 {
     /**
-     * @var ObjectManager
+     * @var EntityManager
      */
     protected $em;
 

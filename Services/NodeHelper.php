@@ -2,7 +2,7 @@
 
 namespace TomAtom\AtomBundle\Services;
 
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 use TomAtom\AtomBundle\Entity\Atom;
@@ -10,7 +10,7 @@ use TomAtom\AtomBundle\Entity\Atom;
 
 class NodeHelper {
     /**
-     * @var ObjectManager
+     * @var EntityManager
      */
     protected $em;
 
@@ -24,7 +24,7 @@ class NodeHelper {
      */
     protected $kernel;
 
-    public function __construct(ObjectManager $em, AuthorizationChecker $ac, KernelInterface $kernelInterface)
+    public function __construct(EntityManager $em, AuthorizationChecker $ac, KernelInterface $kernelInterface)
     {
         $this->em = $em;
         $this->ac = $ac;
