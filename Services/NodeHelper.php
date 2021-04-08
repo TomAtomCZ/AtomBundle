@@ -34,7 +34,7 @@ class NodeHelper {
     public function checkAtom($name, $body) {
         $env = $this->kernel->getEnvironment();
 
-        if($env === 'dev') {
+        if($env === 'prod') {
             $atom = $this->em->getRepository(Atom::class)->findOneBy(['name' => $name]);
             if(!$atom) {
                 $atom = new Atom();
