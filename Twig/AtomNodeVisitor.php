@@ -39,7 +39,7 @@ class AtomNodeVisitor extends \Twig\NodeVisitor\AbstractNodeVisitor {
             $body = $this->nodeHelper->checkAtom($atomName, $defaultBody);
             $node->setNode('body', new BodyNode([
 //                new TextNode('<div class="atom" id="' . $atomName . '">' . $body . '</div>', 1),
-                new TextNode($body, 1),
+                new TextNode(!is_null($body) ? $body : '', 1),
 //                new PrintNode(new NameExpression($name, 1), 1),
             ]));
         }
