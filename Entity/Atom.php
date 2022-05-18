@@ -3,55 +3,69 @@
 namespace TomAtom\AtomBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 use Gedmo\Translatable\Translatable;
+use Knp\DoctrineBehaviors\Contract\Entity\TranslatableInterface;
+use Knp\DoctrineBehaviors\Model\Translatable\TranslatableTrait;
 
 /**
  * Atom
  *
- * @ORM\Table(name="atom")
- * @ORM\Entity
  */
-class Atom implements Translatable
+#[
+    ORM\Entity,
+    ORM\Table(name:'atom')
+]
+class Atom implements TranslatableInterface
 {
+    use TranslatableTrait;
+
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
+    #[
+        ORM\Column(name: 'id', type: 'integer'),
+        ORM\Id,
+        ORM\GeneratedValue(strategy: 'AUTO')
+        ]
     private $id;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=255)
      */
+    #[ORM\Column(name: 'name', type: 'string', length: 255)]
     private $name;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="title", type="string", length=255, nullable=true)
+     *
      */
+    #[ORM\Column(name: 'title', type: 'string', length: 255, nullable: true)]
     private $title;
 
-    /**
-     * @var string
-     *
-     * @Gedmo\Translatable
-     *
-     * @ORM\Column(name="body", type="text")
-     */
-    private $body;
+    public function __call($method, $arguments)
+    {
+        return $this->proxyCurrentLocaleTranslation($method, $arguments);
+    }
 
-    /**
-     * @Gedmo\Locale
-     *
-     * helper field for ephemeral translation lang setting
-     */
-    protected $locale;
+//    public function __call($method, $arguments)
+//    {
+//        $method = ('get' === substr($method, 0, 3) || 'set' === substr($method, 0, 3)) ? $method : 'get'. ucfirst($method);
+//
+//        try {
+//            return $this->proxyCurrentLocaleTranslation($method, $arguments);
+//        } catch (\Exception $e) {return false;}    }
+//
+    public function __get($name)
+    {
+        $method = 'get'. ucfirst($name);
+        $arguments = [];
+
+        return $this->proxyCurrentLocaleTranslation($method, $arguments);
+    }
+
 
     /**
      * Get id
@@ -109,34 +123,5 @@ class Atom implements Translatable
         return $this->title;
     }
 
-    /**
-     * Set body
-     *
-     * @param string $body
-     * @return Atom
-     */
-    public function setBody($body)
-    {
-        $this->body = $body;
 
-        return $this;
-    }
-
-    /**
-     * Get body
-     *
-     * @return string
-     */
-    public function getBody()
-    {
-        return $this->body;
-    }
-
-    /**
-     * @param string $locale
-     */
-    public function setTranslatableLocale($locale)
-    {
-        $this->locale = $locale;
-    }
 }

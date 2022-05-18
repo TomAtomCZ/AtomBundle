@@ -107,7 +107,7 @@ $(function() {
             $.ajax({
                 url: $atomConfig.data('save-url'),
                 method: 'POST',
-                data: {editorID: atomLineId, editabledata: atomLineContent}
+                data: {editorID: atomLineId, editabledata: atomLineContent, atomType: 'atomline'}
             }).success(function (res) {
                 $('div#' + atomLineId).html(atomLineContent);
                 $('body').prepend(saveMsg('ok'));
@@ -148,7 +148,7 @@ $(function() {
                 .val($(this).html().trim());
         });
 
-        $('body').on('click', '#atom-line-editor-send-btn', function () {
+        $('body').on('click', '#atom-entity-editor-send-btn', function () {
             $('body').prepend(saveMsg());
             var atomEntityEntity = $('#atom-entity-editor').data('atom-entity'),
                 atomEntityMethod = $('#atom-entity-editor').data('atom-method'),
