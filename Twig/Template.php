@@ -9,7 +9,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Twig\Environment;
 
 
-class Template extends \Twig\Template
+abstract class Template extends \Twig\Template
 {
     /**
      * @var EntityManager
