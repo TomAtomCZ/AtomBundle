@@ -13,7 +13,7 @@
     "require" : {
         "php": ">=8.0.2",
         "knplabs/doctrine-behaviors": "^2.6",
-        "symfony/framework-bundle": "6.0.*",
+        "symfony/framework-bundle": "^6.0",
         "symfony/security-bundle": "^6.0",
         "twig/cache-extra": "^3.3"
     },

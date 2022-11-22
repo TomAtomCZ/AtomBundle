@@ -49,7 +49,7 @@ class AtomController extends AbstractController
         $em = $doctrine->getManager();
 
         /** @var Atom $atom */
-        $atom = $em->getRepository('TomAtomAtomBundle:Atom')
+        $atom = $em->getRepository(Atom::class)
             ->findOneBy(['name' => $atomName]);
 
         if(!$atom)
@@ -62,7 +62,6 @@ class AtomController extends AbstractController
 
 
         try {
-            //todo current locale
             $atom->translate($request->getLocale(), false)->setBody($request->request->get('editabledata'));
             //$atom->setCurrentLocale($request->getLocale());
             $atom->mergeNewTranslations();
