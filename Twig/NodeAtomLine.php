@@ -9,7 +9,7 @@ use Twig\Node\NodeOutputInterface;
 
 class NodeAtomLine extends Node implements NodeOutputInterface
 {
-    public function __construct($name, \Twig_Node $body, $lineno, $tag = null)
+    public function __construct($name, Node $body, $lineno, $tag = null)
     {
         parent::__construct(array('body' => $body), array('name' => $name), $lineno, $tag);
     }
@@ -21,13 +21,22 @@ class NodeAtomLine extends Node implements NodeOutputInterface
      */
     public function compile(Compiler $compiler)
     {
+
         $compiler
             ->addDebugInfo($this)
-            ->write("ob_start();\n")
+            ->write('$cacheKey = "'.$this->getAttribute('name').'_" . $this->env->getRuntime(\'TomAtom\AtomBundle\Services\AtomRuntime\')->getRequestStack()->getCurrentRequest()->getLocale();' . "\n")
+            ->write("\$cached = \$this->env->getRuntime('Twig\Extra\Cache\CacheRuntime')->getCache()->get(\$cacheKey, function (\Symfony\Contracts\Cache\ItemInterface \$item) use (\$context, \$macros) {\n")
+            ->indent()
+
+            ->write("ob_start(function () { return ''; });\n")
             ->subcompile($this->getNode('body'))
-            ->write('$body = ob_get_clean();'."\n")
-            ->write('$body = $this->checkAtomLine("'.$this->getAttribute('name').'", $body);'."\n")
-            ->write('echo $body;'."\n")
+            ->write("\n")
+//            ->write('$body = ob_get_clean();'."\n")
+//            ->write('$body = $this->checkAtomLine("'.$this->getAttribute('name').'", $body);'."\n")
+            ->write("return ob_get_clean();\n")
+            ->outdent()
+            ->write("});\n")
+            ->write("echo '' === \$cached ? '' : new Markup(\$cached, \$this->env->getCharset());\n")
         ;
     }
 }

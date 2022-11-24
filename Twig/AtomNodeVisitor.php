@@ -42,6 +42,19 @@ class AtomNodeVisitor extends \Twig\NodeVisitor\AbstractNodeVisitor {
                 new TextNode(!is_null($body) ? $body : '', 1),
 //                new PrintNode(new NameExpression($name, 1), 1),
             ]));
+            $node->setAttribute('default_locale', $this->nodeHelper->getDefaultLocale());
+        }
+
+        if ($node instanceof NodeAtomLine) {
+            $atomName = $node->getAttribute('name');
+            $defaultBody = $node->getNode('body')->getAttribute('data');
+//            $body = $this->checkAtom($atomName, $defaultBody);
+            $body = $this->nodeHelper->checkAtomLine($atomName, $defaultBody);
+            $node->setNode('body', new BodyNode([
+//                new TextNode('<div class="atom" id="' . $atomName . '">' . $body . '</div>', 1),
+                new TextNode(!is_null($body) ? $body : '', 1),
+//                new PrintNode(new NameExpression($name, 1), 1),
+            ]));
         }
 //        if ($node->getNodeTag() === 'atom') {
 ////            $name = $node->getAttribute('name');
