@@ -10,6 +10,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 use Symfony\Contracts\Cache\ItemInterface;
 use TomAtom\AtomBundle\Entity\Atom;
+use TomAtom\AtomBundle\Entity\AtomTranslation;
 use Twig\Extra\Cache\CacheRuntime;
 
 
@@ -40,25 +41,44 @@ class NodeHelper {
         $this->cache = $cache;
     }
 
-    public function checkAtom($name, $body, $type = 'atom') {
+    public function checkAtom($name, $body, $type = 'atom')
+    {
         $env = $this->kernel->getEnvironment();
 
-        if($env === 'prod') {
+        if ($env === 'prod') {
             $atom = $this->em->getRepository(Atom::class)->findOneBy(['name' => $name]);
-            if(!$atom) {
+            // If atom doesn't already exist, create new one
+            if (empty($atom)) {
                 $atom = new Atom();
                 $atom->setName($name);
-                $atom->translate($this->getDefaultLocale())->setBody($body);
-                $atom->mergeNewTranslations();
                 $this->em->persist($atom);
-                $this->em->flush();
-            } else {
-                $body = $atom->translate($this->getDefaultLocale())->getBody();
-                $this->prepareCache($atom, $type);
             }
 
-            if($this->ac->isGranted('IS_AUTHENTICATED_FULLY') && $this->ac->isGranted('ROLE_ATOM_EDIT')) {
-                $result = '<div class="'.$type.'" id="'.$name.'">';
+            // Check if the translation exists for all locales - enabled_locales must be defined in translation.yaml
+            $locales = $this->getAllEnabledLocales();
+            foreach ($locales as $locale) {
+                $translation = $atom->translate($locale, false);
+                if ($translation->isEmpty()) {
+                    // Create a new translation for the missing locale
+                    $newTranslation = new AtomTranslation();
+                    $newTranslation->setLocale($locale);
+                    $newTranslation->setBody($body);
+                    $atom->addTranslation($newTranslation);
+                    $this->em->persist($newTranslation);
+                }
+            }
+
+            // Persist and save to db
+            $atom->mergeNewTranslations();
+            $this->em->persist($atom);
+            $this->em->flush();
+
+            // Retrieve the body from the default translation
+            $body = $atom->translate($this->getDefaultLocale())->getBody();
+            $this->prepareCache($atom, $type);
+
+            if ($this->ac->isGranted('IS_AUTHENTICATED_FULLY') && $this->ac->isGranted('ROLE_ATOM_EDIT')) {
+                $result = '<div class="' . $type . '" id="' . $name . '">';
                 $result .= $body;
                 $result .= '</div>';
             } else {
@@ -72,13 +92,16 @@ class NodeHelper {
         return $result;
     }
 
-
     public function checkAtomLine($name, $body) {
         return $this->checkAtom($name, $body, 'atomline');
     }
 
     public function getDefaultLocale() {
         return $this->parameterBag->get('kernel.default_locale');
+    }
+
+    protected function getAllEnabledLocales() {
+        return $this->parameterBag->get('kernel.enabled_locales');
     }
 
     private function prepareCache(Atom $atom, string $type) {
