@@ -54,19 +54,10 @@ class NodeHelper {
                 $this->em->persist($atom);
             }
 
-            // Get the translation for the default locale
-            $defaultTranslation = $atom->translate($this->getDefaultLocale());
-
-            // Check if the default translation is empty, if it is, create new translation with the default locale
-            if ($defaultTranslation->isEmpty()) {
-                $defaultTranslation->setBody($body);
-                $this->em->persist($defaultTranslation);
-            }
-
             // Check if the translation exists for all locales - enabled_locales must be defined in translation.yaml
             $locales = $this->getAllEnabledLocales();
             foreach ($locales as $locale) {
-                $translation = $atom->translate($locale);
+                $translation = $atom->translate($locale, false);
                 if ($translation->isEmpty()) {
                     // Create a new translation for the missing locale
                     $newTranslation = new AtomTranslation();
@@ -77,6 +68,7 @@ class NodeHelper {
                 }
             }
 
+            // Persist and save to db
             $atom->mergeNewTranslations();
             $this->em->persist($atom);
             $this->em->flush();
