@@ -31,11 +31,9 @@ class AtomTranslation implements TranslationInterface
 
     /**
      * @var string
-     *
-     * @Gedmo\Translatable
-     *
      */
     #[ORM\Column(name: 'body', type: 'text')]
+    #[Gedmo\Translatable]
     private string $body;
 
     /**
