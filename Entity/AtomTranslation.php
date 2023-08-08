@@ -30,11 +30,11 @@ class AtomTranslation implements TranslationInterface
     private int $id;
 
     /**
-     * @var string
+     * @var string|null
      */
     #[ORM\Column(name: 'body', type: 'text')]
     #[Gedmo\Translatable]
-    private string $body;
+    private ?string $body = null;
 
     /**
      * Get id
@@ -62,7 +62,7 @@ class AtomTranslation implements TranslationInterface
     /**
      * Get body
      *
-     * @return string
+     * @return string|null
      */
     public function getBody(): ?string
     {

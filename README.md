@@ -65,6 +65,14 @@ security:
     # ...
 ```
 
+* `translation.yml:`
+```yml
+framework:
+    # ...
+    # Add enabled locales for multi language application
+    enabled_locales: ['cs', 'en', 'de']
+```
+
 * `::base.html.twig` (or your base layout):
 ```twig
 {# don't forget to include your jQuery (tested with 1.8.3 - 2.1.4, others may work, 3.0 doesn't): #}
