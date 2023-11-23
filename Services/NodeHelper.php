@@ -56,6 +56,18 @@ class NodeHelper {
 
             // Check if the translation exists for all locales - enabled_locales must be defined in translation.yaml
             $locales = $this->getAllEnabledLocales();
+            // If enabled_locales is missing fallback to get locales from the translation messages files
+            $translationDir = $this->parameterBag->get('kernel.project_dir') . '/translations';
+            if (empty($locales) && is_dir($translationDir)) {
+                // Get the translation messages files
+                $translationFiles = glob($translationDir . '/*.{yml,yaml}', GLOB_BRACE);
+                // Get the locales from the translation files
+                $locales = array_map(function ($filePath) {
+                    $info = pathinfo($filePath);
+                    return str_replace('messages.', '', $info['filename']);
+                }, $translationFiles);
+            }
+
             foreach ($locales as $locale) {
                 $translation = $atom->translate($locale, false);
                 if ($translation->isEmpty()) {
