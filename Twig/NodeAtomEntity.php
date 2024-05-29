@@ -3,28 +3,19 @@
 namespace TomAtom\AtomBundle\Twig;
 
 use Twig\Compiler;
+use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Node;
 use Twig\Node\NodeOutputInterface;
 
-
 class NodeAtomEntity extends Node implements NodeOutputInterface
 {
-    /**
-     * @var string $entityName
-     */
-    public $entityName;
+    public string $entityName;
 
-    /**
-     * @var string $entityMethod
-     */
-    public $entityMethod;
+    public string $entityMethod;
 
-    /**
-     * @var integer $entityId
-     */
-    public $entityId;
+    public int $entityId;
 
-    public function __construct($name, Node $body, $lineno, $tag = null, $entityName, $entityMethod, $entityId)
+    public function __construct(string $name, Node $body, int $lineno, string $entityName, AbstractExpression $entityMethod, AbstractExpression $entityId, ?string $tag = null)
     {
         $this->entityName = $entityName;
         $this->entityMethod = $entityMethod->getAttribute('name');
@@ -42,17 +33,23 @@ class NodeAtomEntity extends Node implements NodeOutputInterface
     /**
      * Compiles the node to PHP.
      *
-     * @param Compiler A Twig_Compiler instance
+     * @param Compiler $compiler A Twig_Compiler instance
      */
-    public function compile(Compiler $compiler)
+    public function compile(Compiler $compiler): void
     {
         $compiler
             ->addDebugInfo($this)
-            ->write("ob_start();\n")
+            ->raw("yield from (function () use (\$context, \$macros) {\n")
+            ->indent()
+            ->raw("return implode('', iterator_to_array((function () use (\$context, \$macros) {\n")
+            ->indent()
             ->subcompile($this->getNode('body'))
-            ->write('$body = ob_get_clean();'."\n")
-            ->write('$body = $this->checkAtomEntity("'.$this->entityName.'", "'.$this->entityMethod.'", "'.$this->entityId.'", $body);'."\n")
-            ->write('echo $body;'."\n")
-        ;
+            ->raw("return; yield '';\n")
+            ->outdent()
+            ->raw('})(), false));' . "\n")
+            ->raw('$body = $this->checkAtomEntity("' . $this->entityName . '", "' . $this->entityMethod . '", "' . $this->entityId . '", $body);' . "\n")
+            ->raw('yield $body;' . "\n")
+            ->outdent()
+            ->raw("})();\n");
     }
 }

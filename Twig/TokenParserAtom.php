@@ -3,6 +3,7 @@
 namespace TomAtom\AtomBundle\Twig;
 
 
+use Twig\Error\SyntaxError;
 use Twig\Node\Node;
 use Twig\Node\PrintNode;
 use Twig\Token;
@@ -14,25 +15,23 @@ class TokenParserAtom extends AbstractTokenParser
     /**
      * Parses a token and returns a node.
      *
-     * @param Twig_Token $token A Twig_Token instance
+     * @param Token $token A Twig_Token instance
      *
-     * @return Twig_NodeInterface A Twig_NodeInterface instance
+     * @return NodeAtom A Twig_NodeInterface instance
+     * @throws SyntaxError
      */
-    public function parse(Token $token)
+    public function parse(Token $token): NodeAtom
     {
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
         $name = $stream->expect(Token::NAME_TYPE)->getValue();
 
-        if ($stream->nextIf(Token::BLOCK_END_TYPE))
-        {
-            $body = $this->parser->subparse(array($this, 'decideAtomEnd'), true);
-        }
-        else
-        {
-            $body = new Node(array(
+        if ($stream->nextIf(Token::BLOCK_END_TYPE)) {
+            $body = $this->parser->subparse([$this, 'decideAtomEnd'], true);
+        } else {
+            $body = new Node([
                 new PrintNode($this->parser->getExpressionParser()->parseExpression(), $lineno),
-            ));
+            ]);
         }
 
         $stream->expect(Token::BLOCK_END_TYPE);
@@ -40,7 +39,7 @@ class TokenParserAtom extends AbstractTokenParser
         return new NodeAtom($name, $body, $lineno);
     }
 
-    public function decideAtomEnd(Token $token)
+    public function decideAtomEnd(Token $token): bool
     {
         return $token->test('endatom');
     }
@@ -50,7 +49,7 @@ class TokenParserAtom extends AbstractTokenParser
      *
      * @return string The tag name
      */
-    public function getTag()
+    public function getTag(): string
     {
         return 'atom';
     }

@@ -2,12 +2,12 @@
 
 namespace TomAtom\AtomBundle\Twig;
 
+use Twig\Error\SyntaxError;
 use Twig\Node\Node;
 use Twig\Node\NodeOutputInterface;
 use Twig\Node\PrintNode;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
-
 
 class TokenParserAtomEntity extends AbstractTokenParser
 {
@@ -16,9 +16,10 @@ class TokenParserAtomEntity extends AbstractTokenParser
      *
      * @param Token $token A Twig_Token instance
      *
-     * @return NodeOutputInterface A Twig_NodeInterface instance
+     * @return NodeOutputInterface|NodeAtomEntity A Twig_NodeInterface instance
+     * @throws SyntaxError
      */
-    public function parse(Token $token)
+    public function parse(Token $token): NodeOutputInterface|NodeAtomEntity
     {
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
@@ -30,23 +31,20 @@ class TokenParserAtomEntity extends AbstractTokenParser
         $stream->expect(Token::PUNCTUATION_TYPE, ',');
         $entityId = $this->parser->getExpressionParser()->parseExpression();
 
-        if ($stream->nextIf(Token::BLOCK_END_TYPE))
-        {
-            $body = $this->parser->subparse(array($this, 'decideAtomEntityEnd'), true);
-        }
-        else
-        {
-            $body = new Node(array(
+        if ($stream->nextIf(Token::BLOCK_END_TYPE)) {
+            $body = $this->parser->subparse([$this, 'decideAtomEntityEnd'], true);
+        } else {
+            $body = new Node([
                 new PrintNode($this->parser->getExpressionParser()->parseExpression(), $lineno),
-            ));
+            ]);
         }
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        return new NodeAtomEntity(null, $body, $lineno, $this->getTag(), $entityNamespace . ':' . $entityName, $entityMethod, $entityId);
+        return new NodeAtomEntity(null, $body, $lineno, $entityNamespace . ':' . $entityName, $entityMethod, $entityId, $this->getTag());
     }
 
-    public function decideAtomEntityEnd(Token $token)
+    public function decideAtomEntityEnd(Token $token): bool
     {
         return $token->test('endatomentity');
     }
@@ -56,7 +54,7 @@ class TokenParserAtomEntity extends AbstractTokenParser
      *
      * @return string The tag name
      */
-    public function getTag()
+    public function getTag(): string
     {
         return 'atomentity';
     }
