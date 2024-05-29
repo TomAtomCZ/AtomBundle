@@ -15,7 +15,7 @@ class NodeAtomEntity extends Node implements NodeOutputInterface
 
     public int $entityId;
 
-    public function __construct(string $name, Node $body, int $lineno, ?string $tag = null, AbstractExpression $entityName, AbstractExpression $entityMethod, AbstractExpression $entityId)
+    public function __construct(string $name, Node $body, int $lineno, string $entityName, AbstractExpression $entityMethod, AbstractExpression $entityId, ?string $tag = null)
     {
         $this->entityName = $entityName;
         $this->entityMethod = $entityMethod->getAttribute('name');
