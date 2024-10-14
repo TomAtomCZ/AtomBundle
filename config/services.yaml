@@ -4,30 +4,30 @@ services:
         tags:
             - { name: twig.extension }
         arguments:
-            - "@doctrine.orm.entity_manager.abstract"
-            - "@security.authorization_checker"
-            - "@kernel"
-            - "@tom_atom.service.node_helper"
-#    tom_atom.twig.node_visitor:
-#        class: TomAtom\AtomBundle\Twig\AtomNodeVisitor
-#        arguments:
-#            - "@tom_atom.service.node_helper"
+            $entityManager: "@doctrine.orm.entity_manager"
+            $authorizationChecker: "@security.authorization_checker"
+            $kernelInterface: "@kernel"
+            $nodeHelper: "@tom_atom.service.node_helper"
+    #    tom_atom.twig.node_visitor:
+    #        class: TomAtom\AtomBundle\Twig\AtomNodeVisitor
+    #        arguments:
+    #            - "@tom_atom.service.node_helper"
     tom_atom.service.node_helper:
         class: TomAtom\AtomBundle\Services\NodeHelper
         arguments:
-            $entityManager: "@doctrine.orm.entity_manager.abstract"
+            $entityManager: "@doctrine.orm.entity_manager"
             $authorizationChecker: "@security.authorization_checker"
             $kernelInterface: "@kernel"
             $parameterBag: "@parameter_bag"
-            $cache: "@cache.app"
+            $cache: "@twig.runtime.cache"
 
     TomAtom\AtomBundle\Controller\:
         calls:
             - setContainer: [ '@service_container' ]
-        resource: '../../Controller'
+        resource: '../src/Controller/'
         tags: [ 'controller.service_arguments' ]
         arguments:
-            $cache: "@cache.app"
+            $cache: "@twig.runtime.cache"
             $authorizationChecker: '@security.authorization_checker'
             $parameterBag: '@parameter_bag'
 
