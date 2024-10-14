@@ -1,0 +1,17 @@
+{% if is_granted('ROLE_ATOM_EDIT') %}
+    <link rel="stylesheet" href="{{ asset('css/atom.css') }}">
+    <script src="{{ asset('js/lib/ckeditor/ckeditor.js') }}"></script>
+    <script src="{{ asset('js/atom_ckedit.js') }}"></script>
+    <span id="atom-config"
+          data-save-url="{{ path('atom_save') }}"
+          data-image-upload-url="{{ path('atom_upload_image') }}"
+          data-image-list-url="{{ path('atom_image_list') }}"
+          data-toggle-editable="{{ path('atom_toggle_enabled') }}"
+          data-editable="{{ editable }}"
+          data-locale="{{ app.request.locale }}">
+    </span>
+    <span id="atom-entity-config"
+          data-save-url="{{ path('atom_entity_save') }}"
+          data-locale="{{ app.request.locale }}">
+    </span>
+{% endif %}

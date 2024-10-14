@@ -2,13 +2,11 @@
 
 namespace TomAtom\AtomBundle\Twig;
 
-
 use Twig\Error\SyntaxError;
 use Twig\Node\Node;
 use Twig\Node\PrintNode;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
-
 
 class TokenParserAtom extends AbstractTokenParser
 {

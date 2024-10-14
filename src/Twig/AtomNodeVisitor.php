@@ -2,35 +2,23 @@
 
 namespace TomAtom\AtomBundle\Twig;
 
-
-use Doctrine\ORM\EntityManager;
-use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
-use TomAtom\AtomBundle\Entity\Atom;
 use TomAtom\AtomBundle\Services\NodeHelper;
 use Twig\Environment;
 use Twig\Node\BodyNode;
-use Twig\Node\BlockNode;
-use Twig\Node\Expression\NameExpression;
 use Twig\Node\Node;
-use Twig\Node\PrintNode;
 use Twig\Node\TextNode;
-use Twig\Template;
+use Twig\NodeVisitor\AbstractNodeVisitor;
 
-
-class AtomNodeVisitor extends \Twig\NodeVisitor\AbstractNodeVisitor {
-
-    /**
-     * @var NodeHelper
-     */
-    protected $nodeHelper;
+class AtomNodeVisitor extends AbstractNodeVisitor
+{
+    protected NodeHelper $nodeHelper;
 
     public function __construct(NodeHelper $nh)
     {
         $this->nodeHelper = $nh;
     }
 
-    public function doEnterNode(\Twig\Node\Node $node, \Twig\Environment $env)
+    public function doEnterNode(Node $node, Environment $env)
     {
         if ($node instanceof NodeAtom) {
             $atomName = $node->getAttribute('name');
@@ -67,13 +55,13 @@ class AtomNodeVisitor extends \Twig\NodeVisitor\AbstractNodeVisitor {
         return $node;
     }
 
-    public function doLeaveNode(Node $node, Environment $env)
+    public function doLeaveNode(Node $node, Environment $env): Node
     {
         // TODO: Implement doLeaveNode() method.
         return $node;
     }
 
-    public function getPriority()
+    public function getPriority(): int
     {
         return 0;
     }

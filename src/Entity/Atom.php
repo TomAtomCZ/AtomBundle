@@ -3,47 +3,29 @@
 namespace TomAtom\AtomBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Translatable\Translatable;
 use Knp\DoctrineBehaviors\Contract\Entity\TranslatableInterface;
 use Knp\DoctrineBehaviors\Model\Translatable\TranslatableTrait;
 
-/**
- * Atom
- *
- */
 #[
     ORM\Entity,
-    ORM\Table(name:'atom')
+    ORM\Table(name: 'atom')
 ]
 class Atom implements TranslatableInterface
 {
     use TranslatableTrait;
 
-    /**
-     * @var integer
-     *
-     */
     #[
         ORM\Column(name: 'id', type: 'integer'),
         ORM\Id,
         ORM\GeneratedValue(strategy: 'AUTO')
-        ]
-    private $id;
+    ]
+    private ?int $id = null;
 
-    /**
-     * @var string
-     *
-     */
     #[ORM\Column(name: 'name', type: 'string', length: 255)]
-    private $name;
+    private string $name;
 
-    /**
-     * @var string
-     *
-     *
-     */
     #[ORM\Column(name: 'title', type: 'string', length: 255, nullable: true)]
-    private $title;
+    private string $title;
 
     public function __call($method, $arguments)
     {
@@ -60,68 +42,38 @@ class Atom implements TranslatableInterface
 //
     public function __get($name)
     {
-        $method = 'get'. ucfirst($name);
+        $method = 'get' . ucfirst($name);
         $arguments = [];
 
         return $this->proxyCurrentLocaleTranslation($method, $arguments);
     }
 
-
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * Set name
-     *
-     * @param string $name
-     * @return Atom
-     */
-    public function setName($name)
+    public function setName($name): static
     {
         $this->name = $name;
 
         return $this;
     }
 
-    /**
-     * Get name
-     *
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * Set title
-     *
-     * @param string $title
-     * @return Atom
-     */
-    public function setTitle($title)
+    public function setTitle($title): static
     {
         $this->title = $title;
 
         return $this;
     }
 
-    /**
-     * Get title
-     *
-     * @return string
-     */
-    public function getTitle()
+    public function getTitle(): string
     {
         return $this->title;
     }
-
-
 }

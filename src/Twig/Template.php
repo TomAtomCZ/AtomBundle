@@ -2,29 +2,23 @@
 
 namespace TomAtom\AtomBundle\Twig;
 
-use TomAtom\AtomBundle\Entity\Atom;
-use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
+use TomAtom\AtomBundle\Entity\Atom;
 use Twig\Environment;
-
+use Twig\Source;
 
 class Template extends \Twig\Template
 {
-    /**
-     * @var EntityManager
-     */
-    protected $em;
+    protected EntityManagerInterface $entityManager;
 
-    /**
-     * @var AuthorizationChecker
-     */
-    protected $ac;
+    protected AuthorizationChecker $authorizationChecker;
 
     /**
      * @var KernelInterface
      */
-    protected $kernel;
+    protected KernelInterface $kernel;
 
     public function __construct(Environment $env)
     {
@@ -32,8 +26,8 @@ class Template extends \Twig\Template
 
         $taExt = $env->getExtension(TomAtomExtension::class);
 
-        $this->em = $taExt->getEntityManager();
-        $this->ac = $taExt->getAuthorizationChecker();
+        $this->entityManager = $taExt->getEntityManager();
+        $this->authorizationChecker = $taExt->getAuthorizationChecker();
         $this->kernel = $taExt->getKernel();
     }
 
@@ -41,31 +35,25 @@ class Template extends \Twig\Template
     {
         $env = $this->kernel->getEnvironment();
 
-        if($env === 'prod') {
-            $atom = $this->em->getRepository('TomAtomAtomBundle:Atom')
+        if ($env === 'prod') {
+            $atom = $this->entityManager->getRepository(Atom::class)
                 ->findOneBy(array('name' => $name));
 
-            if(!$atom)
-            {
+            if (!$atom) {
                 $atom = new Atom();
                 $atom->setName($name);
                 $atom->setBody($body);
-                $this->em->persist($atom);
-                $this->em->flush();
-            }
-            else
-            {
+                $this->entityManager->persist($atom);
+                $this->entityManager->flush();
+            } else {
                 $body = $atom->getBody();
             }
 
-            if($this->ac->isGranted('IS_AUTHENTICATED_FULLY') && $this->ac->isGranted('ROLE_ATOM_EDIT'))
-            {
-                $result = '<div class="atom" id="'.$name.'">';
+            if ($this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY') && $this->authorizationChecker->isGranted('ROLE_ATOM_EDIT')) {
+                $result = '<div class="atom" id="' . $name . '">';
                 $result .= $body;
                 $result .= '</div>';
-            }
-            else
-            {
+            } else {
                 $result = $body;
             }
         } else {
@@ -80,31 +68,25 @@ class Template extends \Twig\Template
     {
         $env = $this->kernel->getEnvironment();
 
-        if($env === 'prod') {
-            $atom = $this->em->getRepository('TomAtomAtomBundle:Atom')
+        if ($env === 'prod') {
+            $atom = $this->entityManager->getRepository(Atom::class)
                 ->findOneBy(array('name' => $name));
 
-            if(!$atom)
-            {
+            if (!$atom) {
                 $atom = new Atom();
                 $atom->setName($name);
                 $atom->setBody($body);
-                $this->em->persist($atom);
-                $this->em->flush();
-            }
-            else
-            {
+                $this->entityManager->persist($atom);
+                $this->entityManager->flush();
+            } else {
                 $body = $atom->getBody();
             }
 
-            if($this->ac->isGranted('IS_AUTHENTICATED_FULLY') && $this->ac->isGranted('ROLE_ATOM_EDIT'))
-            {
-                $result = '<span class="atomline" id="'.$name.'">';
+            if ($this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY') && $this->authorizationChecker->isGranted('ROLE_ATOM_EDIT')) {
+                $result = '<span class="atomline" id="' . $name . '">';
                 $result .= $body;
                 $result .= '</span>';
-            }
-            else
-            {
+            } else {
                 $result = $body;
             }
         } else {
@@ -119,28 +101,22 @@ class Template extends \Twig\Template
     {
         $env = $this->kernel->getEnvironment();
 
-        if($env === 'prod') {
+        if ($env === 'prod') {
             $prop = str_ireplace('get', '', str_ireplace('set', '', $method));
 
-            $atom = $this->em->getRepository($name)->find($id);
+            $atom = $this->entityManager->getRepository($name)->find($id);
 
-            if(!$atom)
-            {
+            if (!$atom) {
                 $result = $body;
-            }
-            else
-            {
+            } else {
                 $body = call_user_func([$atom, 'get' . $prop]);
             }
 
-            if($this->ac->isGranted('IS_AUTHENTICATED_FULLY') && $this->ac->isGranted('ROLE_ATOM_EDIT'))
-            {
-                $result = '<div class="atomentity" data-atom-entity="'.$name.'" data-atom-id="'.$id.'" data-atom-method="'.$method.'">';
+            if ($this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY') && $this->authorizationChecker->isGranted('ROLE_ATOM_EDIT')) {
+                $result = '<div class="atomentity" data-atom-entity="' . $name . '" data-atom-id="' . $id . '" data-atom-method="' . $method . '">';
                 $result .= $body;
                 $result .= '</div>';
-            }
-            else
-            {
+            } else {
                 $result = $body;
             }
         } else {
@@ -152,7 +128,19 @@ class Template extends \Twig\Template
     }
 
     // must be implemented, will be overloaded in final template
-    public function getTemplateName() {}
-    public function getDebugInfo() {}
-    protected function doDisplay(array $context, array $blocks = array()) {}
+    public function getTemplateName(): string
+    {
+    }
+
+    public function getDebugInfo(): array
+    {
+    }
+
+    protected function doDisplay(array $context, array $blocks = array()): iterable
+    {
+    }
+
+    public function getSourceContext(): Source
+    {
+    }
 }
