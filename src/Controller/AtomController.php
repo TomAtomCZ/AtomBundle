@@ -3,7 +3,6 @@
 namespace TomAtom\AtomBundle\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,7 +12,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -28,7 +27,7 @@ class AtomController extends AbstractController
 
     #[IsGranted('ROLE_ATOM_EDIT')]
     #[Route(path: '/{_locale}/save', name: 'atom_save')]
-    public function saveAction(Request $request, ManagerRegistry $doctrine): JsonResponse
+    public function saveAction(Request $request): JsonResponse
     {
         $atomName = $request->request->get('editorID');
         $atomType = $request->request->get('atomType');
@@ -107,7 +106,7 @@ class AtomController extends AbstractController
 
     #[IsGranted('ROLE_ATOM_EDIT')]
     #[Route(path: '/{_locale}/save-entity', name: 'atom_entity_save')]
-    public function saveCustomEntityAction(Request $request, ManagerRegistry $doctrine): JsonResponse
+    public function saveCustomEntityAction(Request $request): JsonResponse
     {
         $entityName = $request->request->get('entity');
         $entityMethod = $request->request->get('method');
