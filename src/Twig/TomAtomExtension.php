@@ -16,12 +16,15 @@ class TomAtomExtension extends AbstractExtension
     protected NodeHelper $nodeHelper;
     protected AtomNodeVisitor $atomNodeVisitor;
 
-    public function __construct(EntityManager $entityManager, AuthorizationChecker $authorizationChecker, KernelInterface $kernelInterface, NodeHelper $nh)
+    public function __construct(EntityManager        $entityManager,
+                                AuthorizationChecker $authorizationChecker,
+                                KernelInterface      $kernelInterface,
+                                NodeHelper           $nodeHelper)
     {
         $this->entityManager = $entityManager;
         $this->authorizationChecker = $authorizationChecker;
         $this->kernel = $kernelInterface;
-        $this->nodeHelper = $nh;
+        $this->nodeHelper = $nodeHelper;
     }
 
     public function getEntityManager(): EntityManager

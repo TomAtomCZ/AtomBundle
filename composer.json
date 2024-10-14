@@ -16,7 +16,8 @@
         "symfony/framework-bundle": "^6",
         "symfony/security-bundle": "^6",
         "twig/cache-extra": "^3.3",
-        "gedmo/doctrine-extensions": "^3.17"
+        "gedmo/doctrine-extensions": "^3.17",
+        "doctrine/orm": "^2.20"
     },
     "autoload" : {
         "psr-4" : {
