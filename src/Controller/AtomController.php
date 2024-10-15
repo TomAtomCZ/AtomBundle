@@ -208,7 +208,7 @@ class AtomController extends AbstractController
     {
         $editable = $this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY') && $this->authorizationChecker->isGranted('ROLE_ATOM_EDIT');
 
-        return $this->render('@TomAtomAtomBundle/atom/_metas.html.twig',
+        return $this->render('@TomAtomAtom/atom/_metas.html.twig',
             ['editable' => $editable]
         );
     }
