@@ -22,12 +22,13 @@ services:
             $cache: "@twig.runtime.cache"
 
     TomAtom\AtomBundle\Controller\:
-        calls:
-            - setContainer: [ '@service_container' ]
+        autowire: true
+        autoconfigure: true
         resource: '../src/Controller/'
         tags: [ 'controller.service_arguments' ]
         arguments:
             $cache: "@twig.runtime.cache"
+            $entityManager: "@doctrine.orm.entity_manager"
             $authorizationChecker: '@security.authorization_checker'
             $parameterBag: '@parameter_bag'
 
