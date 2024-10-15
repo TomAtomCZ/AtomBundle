@@ -2,10 +2,10 @@
 
 namespace TomAtom\AtomBundle\Services;
 
-use Doctrine\ORM\EntityManager;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use TomAtom\AtomBundle\Entity\Atom;
 use TomAtom\AtomBundle\Entity\AtomTranslation;
@@ -13,17 +13,17 @@ use Twig\Extra\Cache\CacheRuntime;
 
 class NodeHelper
 {
-    protected EntityManager $entityManager;
-    protected AuthorizationChecker $authorizationChecker;
+    protected EntityManagerInterface $entityManager;
+    protected AuthorizationCheckerInterface $authorizationChecker;
     protected KernelInterface $kernel;
-    protected ParameterBag $parameterBag;
+    protected ParameterBagInterface $parameterBag;
     protected CacheRuntime $cache;
 
-    public function __construct(EntityManager        $entityManager,
-                                AuthorizationChecker $authorizationChecker,
-                                KernelInterface      $kernelInterface,
-                                ParameterBag         $parameterBag,
-                                CacheRuntime         $cache)
+    public function __construct(EntityManagerInterface        $entityManager,
+                                AuthorizationCheckerInterface $authorizationChecker,
+                                KernelInterface               $kernelInterface,
+                                ParameterBagInterface         $parameterBag,
+                                CacheRuntime                  $cache)
     {
         $this->entityManager = $entityManager;
         $this->authorizationChecker = $authorizationChecker;

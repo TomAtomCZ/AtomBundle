@@ -4,7 +4,7 @@ namespace TomAtom\AtomBundle\Twig;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use TomAtom\AtomBundle\Entity\Atom;
 use Twig\Environment;
 use Twig\Source;
@@ -12,12 +12,7 @@ use Twig\Source;
 class Template extends \Twig\Template
 {
     protected EntityManagerInterface $entityManager;
-
-    protected AuthorizationChecker $authorizationChecker;
-
-    /**
-     * @var KernelInterface
-     */
+    protected AuthorizationCheckerInterface $authorizationChecker;
     protected KernelInterface $kernel;
 
     public function __construct(Environment $env)
