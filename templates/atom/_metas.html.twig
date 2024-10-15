@@ -1,7 +1,7 @@
 {% if is_granted('ROLE_ATOM_EDIT') %}
-    <link rel="stylesheet" href="{{ asset('css/atom.css') }}">
-    <script src="{{ asset('js/lib/ckeditor/ckeditor.js') }}"></script>
-    <script src="{{ asset('js/atom_ckedit.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('bundles/tomatomatom/css/atom.css') }}">
+    <script src="{{ asset('bundles/tomatomatom/js/lib/ckeditor/ckeditor.js') }}"></script>
+    <script src="{{ asset('bundles/tomatomatom/js/atom_ckedit.js') }}"></script>
     <span id="atom-config"
           data-save-url="{{ path('atom_save') }}"
           data-image-upload-url="{{ path('atom_upload_image') }}"
