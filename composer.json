@@ -7,17 +7,18 @@
         "email" : "tom@tomatom.com"
     }],
     "keywords" : [
-        "atom bundle"
+        "symfony atom bundle front-end editor"
     ],
     "license" : "MIT",
     "require" : {
         "php": ">=8.1",
-        "knplabs/doctrine-behaviors": "^2.6",
+        "doctrine/orm": "^2",
+        "gedmo/doctrine-extensions": "^3",
+        "knplabs/doctrine-behaviors": "^2",
         "symfony/framework-bundle": "^6",
         "symfony/security-bundle": "^6",
-        "twig/cache-extra": "^3.3",
-        "gedmo/doctrine-extensions": "^3.17",
-        "doctrine/orm": "^2.20"
+        "symfony/twig-bundle": "^6",
+        "twig/cache-extra": "^3"
     },
     "autoload" : {
         "psr-4" : {
