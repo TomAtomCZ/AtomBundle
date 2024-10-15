@@ -1,0 +1,39 @@
+services:
+    tom_atom.twig.atom_extension:
+        class: TomAtom\AtomBundle\Twig\TomAtomExtension
+        tags:
+            - { name: twig.extension }
+        arguments:
+            $entityManager: "@doctrine.orm.entity_manager"
+            $authorizationChecker: "@security.authorization_checker"
+            $kernelInterface: "@kernel"
+            $nodeHelper: "@tom_atom.service.node_helper"
+    #    tom_atom.twig.node_visitor:
+    #        class: TomAtom\AtomBundle\Twig\AtomNodeVisitor
+    #        arguments:
+    #            - "@tom_atom.service.node_helper"
+    tom_atom.service.node_helper:
+        class: TomAtom\AtomBundle\Services\NodeHelper
+        arguments:
+            $entityManager: "@doctrine.orm.entity_manager"
+            $authorizationChecker: "@security.authorization_checker"
+            $kernelInterface: "@kernel"
+            $parameterBag: "@parameter_bag"
+            $cache: "@twig.runtime.cache"
+
+    TomAtom\AtomBundle\Controller\:
+        autowire: true
+        autoconfigure: true
+        resource: '../src/Controller/'
+        tags: [ 'controller.service_arguments' ]
+        arguments:
+            $cache: "@twig.runtime.cache"
+            $entityManager: "@doctrine.orm.entity_manager"
+            $authorizationChecker: '@security.authorization_checker'
+            $parameterBag: '@parameter_bag'
+
+    tom_atom.service.atom_runtime:
+        class: TomAtom\AtomBundle\Services\AtomRuntime
+        tags: [ 'twig.runtime' ]
+        arguments:
+            $requestStack: '@request_stack'

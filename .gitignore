@@ -1,2 +1,9 @@
 .idea/
+.env
+.env.local
+.env.test
 nbproject/
+/vendor
+/docker
+Dockerfile
+docker-compose.yml
