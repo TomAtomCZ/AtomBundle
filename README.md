@@ -11,12 +11,12 @@
 
 **For Symfony 5**
 
-* "symfony/framework-bundle": "~5.1",
+* "symfony/framework-bundle": "~5.1"
 * "antishov/doctrine-extensions-bundle": "^1.4"
 
 **For Symfony 6+**
 
-* "symfony/framework-bundle": "^6",
+* "symfony/framework-bundle": "^6"
 * "stof/doctrine-extensions-bundle": "^1.9"
 
 **For all**
@@ -33,7 +33,7 @@
 
 > * for Symfony __~2.8__: `composer require tomatom/atom-bundle "~1.0"`
 > * for Symfony __~4.2__: `composer require tomatom/atom-bundle "~2.0"`
-> * for Symfony __~5__: `composer require tomatom/atom-bundle "3.0-alpha-5 "`
+> * for Symfony __~5__: `composer require tomatom/atom-bundle "3.0-alpha-5"`
 > * for Symfony __~6|~7__: `composer require tomatom/atom-bundle "^3"`
 
 ### Configuration:
@@ -192,3 +192,25 @@ framework:
 * when switching between locales by changing `_locale` request parameter, you can easily update atoms in specified
   language.
   Also Atom Entities can be translated from frontend, if they have implemented Gedmo Translatable behavior.
+
+### Automatic translations:
+
+* for automatic translations, you will need a DeepL API key, which you can
+  get [here](https://www.deepl.com/en/pro-api) (Free version offers 500,000 character limit / month) and put that in
+  your ```.env.local```, for example:
+
+```dotenv
+DEEPL_KEY=xxxxxx
+```
+
+* they are disabled by default, you can enable them by creating ```tom_atom_atom.yaml``` in config/packages with these
+  values:
+
+```yaml
+tom_atom_atom:
+  automatic_translations: true
+  deepl_key: '%env(DEEPL_KEY)%' # env for your DeepL API KEY
+```
+
+* automatic translations take place only when editing an Atom in your *default_locale*
+* atoms will be translated for all languages in *enabled_locales*, **even if they had some values before!**
