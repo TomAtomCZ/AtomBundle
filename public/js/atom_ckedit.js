@@ -13,8 +13,6 @@ $(function () {
         $atomEntityConfig = $('#atom-entity-config'),
         atomsEditable = !!JSON.parse(window.localStorage.getItem('atoms_enabled')),
         $atomToggleBtn = '<div class="atoms-' + (atomsEditable ? "enabled" : "disabled") + '" id="atom-toggle-btn" title="Toggle Atoms"></div>',
-        $atomLineEditor = $('#atom-line-editor'),
-        $atomEntityEditor = $('#atom-entity-editor'),
 
         saveMsg = function (type, details) {
             $('div.ckeditor-save-msg').hide();
@@ -105,27 +103,26 @@ $(function () {
             const atomLineId = $(this).attr('id');
             $('#atom-line-editor-body').remove();
             $body.append($atomLineEditorBody);
+            const $atomLineEditor = $('#atom-line-editor');
             $atomLineEditor.attr('data-atom-id', atomLineId);
             $atomLineEditor.val($(this).html().trim());
         });
 
         $body.on('click', '#atom-line-editor-send-btn', function () {
             $body.prepend(saveMsg());
-
+            const $atomLineEditor = $('#atom-line-editor');
             const atomLineId = $atomLineEditor.attr('data-atom-id'),
                 atomLineContent = $atomLineEditor.val();
             $.ajax({
                 url: $atomConfig.data('save-url'),
                 method: 'POST',
                 data: {editorID: atomLineId, editabledata: atomLineContent, atomType: 'atomline'}
-            }).success(function (res) {
+            }).success(function () {
                 $('div#' + atomLineId).html(atomLineContent);
                 $body.prepend(saveMsg('ok'));
-                console.log(res)
 
-            }).fail(function (err) {
+            }).fail(function () {
                 $body.prepend(saveMsg('error'));
-                console.log(err); // TODO: remove
             });
             $('#atom-line-editor-body').remove();
         });
@@ -153,6 +150,7 @@ $(function () {
                 atomEntityId = $(this).data('atom-id');
             $('#atom-entity-editor-body').remove();
             $body.append($atomEntityEditorBody);
+            const $atomEntityEditor = $('#atom-entity-editor');
             $atomEntityEditor
                 .attr('data-atom-entity', atomEntityEntity)
                 .attr('data-atom-method', atomEntityMethod)
@@ -162,6 +160,7 @@ $(function () {
 
         $body.on('click', '#atom-entity-editor-send-btn', function () {
             $body.prepend(saveMsg());
+            const $atomEntityEditor = $('#atom-entity-editor');
             const atomEntityEntity = $atomEntityEditor.data('atom-entity'),
                 atomEntityMethod = $atomEntityEditor.data('atom-method'),
                 atomEntityId = $atomEntityEditor.data('atom-id'),
@@ -178,9 +177,8 @@ $(function () {
             }).success(function () {
                 $('div[data-atom-entity="' + atomEntityEntity + '"][data-atom-id="' + atomEntityId + '"]').html(atomEntityContent);
                 $body.prepend(saveMsg('ok'));
-            }).fail(function (err) {
+            }).fail(function () {
                 $body.prepend(saveMsg('error'));
-                console.log(err); // TODO: remove
             });
             $('#atom-entity-editor-body').remove();
         });
@@ -203,9 +201,7 @@ $(function () {
             if (res.status === 'ok') {
                 window.localStorage.setItem('atoms_enabled', JSON.stringify(res.details));
             }
-            console.log('Atoms toggle response: ', res); // TODO: remove
         }).fail(function (err) {
-            console.log('Atoms toggle ERROR: ', err); // TODO: remove
         }).always(function () {
             window.location.reload();
         });
