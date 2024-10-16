@@ -18,7 +18,10 @@
         "symfony/framework-bundle": "^6",
         "symfony/security-bundle": "^6",
         "symfony/twig-bundle": "^6",
-        "twig/cache-extra": "^3"
+        "symfony/http-client": "^6",
+        "twig/cache-extra": "^3",
+        "deeplcom/deepl-php": "^1.9",
+        "nyholm/psr7": "^1.8"
     },
     "autoload" : {
         "psr-4" : {
@@ -30,5 +33,10 @@
             "dev-master" : "1.0-dev"
         },
         "public-dir": "public"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
     }
 }

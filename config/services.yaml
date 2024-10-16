@@ -37,3 +37,8 @@ services:
         tags: [ 'twig.runtime' ]
         arguments:
             $requestStack: '@request_stack'
+
+    tom_atom.service.deepl:
+        class: TomAtom\AtomBundle\Services\DeepLService
+        arguments:
+            $deeplKey: '%tom_atom_atom.deepl_key%'

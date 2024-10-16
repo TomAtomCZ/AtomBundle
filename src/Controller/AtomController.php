@@ -2,6 +2,7 @@
 
 namespace TomAtom\AtomBundle\Controller;
 
+use DeepL\DeepLException;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Cache\InvalidArgumentException;
@@ -17,11 +18,16 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Cache\ItemInterface;
 use TomAtom\AtomBundle\Entity\Atom;
+use TomAtom\AtomBundle\Services\DeepLService;
 use Twig\Extra\Cache\CacheRuntime;
 
 class AtomController extends AbstractController
 {
-    public function __construct(private readonly CacheRuntime $cache, private readonly EntityManagerInterface $entityManager, private readonly AuthorizationChecker $authorizationChecker, private readonly ParameterBagInterface $parameterBag)
+    public function __construct(private readonly CacheRuntime           $cache,
+                                private readonly EntityManagerInterface $entityManager,
+                                private readonly AuthorizationChecker   $authorizationChecker,
+                                private readonly ParameterBagInterface  $parameterBag,
+                                private readonly DeepLService           $deepL)
     {
     }
 
@@ -54,53 +60,51 @@ class AtomController extends AbstractController
         }
 
         try {
-            $atom->translate($request->getLocale(), false)->setBody($request->request->get('editabledata'));
-            //$atom->setCurrentLocale($request->getLocale());
+            $text = $request->request->get('editabledata');
+            $currentLocale = $request->getLocale();
+            $defaultLocale = $request->getDefaultLocale();
+            $enabledLocales = $this->parameterBag->get('kernel.enabled_locales') ?? [$defaultLocale];
+
+            // Translate atom for current locale
+            $atom->translate($currentLocale, false)->setBody($text);
+
+            // Translate for all enabled locales if automatic translations are on and we were editing atom in default locale
+            if ((int)$this->parameterBag->get('tom_atom_atom.automatic_translations') === 1 && $currentLocale === $defaultLocale) {
+                foreach ($enabledLocales as $locale) {
+                    if ($locale === $currentLocale) {
+                        continue;
+                    }
+                    try {
+                        $translated = $this->deepL->translate($text, $defaultLocale, $locale);
+                        $atom->translate($locale, false)->setBody($translated);
+                    } catch (DeepLException $e) {
+                        $details = 'DeepL automatic translation did not succeed: ' . (str_ends_with($e->getMessage(), ', ') ? rtrim($e->getMessage(), ', ') : $e->getMessage());
+                    }
+                }
+            }
+
+            // Save translations to db
             $atom->mergeNewTranslations();
-
-//            $translation = new AtomTranslation();
-//            $translation->setBody($request->request->get('editabledata'));
-//            $translation->setTranslatable($atom);
-//            $translation->setLocale($request->getLocale());
-//            $this->entityManager->persist($translation);
-
             $this->entityManager->flush();
 
-            $cacheKey = $atom->getName() . '_' . $request->getLocale();
-
-            $this->cache->getCache()->delete($cacheKey);
-            $cached = $this->cache->getCache()->get($cacheKey, function (ItemInterface $item) use ($atom, $atomType, $request) {
-                //$item->tag("atom_text");
-
-
-                return '<div class="' . $atomType . '" id="' . $atom->getName() . '">' . $atom->translate($request->getLocale())->getBody() . '</div>';
-            });
-
-            //dd($this->cache->getCache()->delete($atom->getName()));
-//            $cache = new FilesystemTagAwareAdapter();
-//            $cachedAtom = $cache->getItem($atom->getName());
-//
-//dd($cachedAtom);
-//            $fs = new Filesystem();
-//            $fs->remove($this->container->getParameter('kernel.cache_dir'));
-//            $cacheDriverArr = new \Doctrine\Common\Cache\ArrayCache();
-//            $cacheDriverArr->deleteAll();
-//            if (function_exists('apcu_fetch')) {
-//                $cacheDriverApc = new \Doctrine\Common\Cache\ApcuCache();
-//                $cacheDriverApc->deleteAll();
-//            }
-//            if (class_exists('Memcache')) {
-//                $cacheDriverMem = new \Doctrine\Common\Cache\MemcachedCache();
-//                $cacheDriverMem->deleteAll();
-//            }
-//            nope TODO resolve how to clear old data from cache..
-//            $cacheDriver = $entityManager->getConfiguration()->getResultCacheImpl();
-//            $cacheDriver->deleteAll(); // to delete all cache entries $cacheDriver->deleteAll();
+            // Remove old data from cache and save new one
+            foreach ($enabledLocales as $locale) {
+                $cacheKey = $atom->getName() . '_' . $locale;
+                $this->cache->getCache()->delete($cacheKey);
+                $this->cache->getCache()->get($cacheKey, function (ItemInterface $item) use ($atom, $atomType, $locale) {
+                    return '<div class="' . $atomType . '" id="' . $atom->getName() . '">' . $atom->translate($locale)->getBody() . '</div>';
+                });
+            }
         } catch (Exception|InvalidArgumentException $e) {
+            return new JsonResponse([
+                'status' => 'error',
+                'details' => $e->getMessage()
+            ]);
         }
 
         return new JsonResponse([
-            'status' => 'ok'
+            'status' => 'ok',
+            'details' => $details ?? null
         ]);
     }
 
