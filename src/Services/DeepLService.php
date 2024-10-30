@@ -27,6 +27,7 @@ class DeepLService
     public function translate(string $text, string $sourceLang, string $targetLang): string
     {
         $translator = new Translator($this->deeplKey);
+        $text = html_entity_decode($text);
         if ($targetLang === 'en') {
             $targetLang = 'en-GB';
         }
