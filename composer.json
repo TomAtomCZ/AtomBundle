@@ -18,7 +18,7 @@
         "symfony/framework-bundle": "^6",
         "symfony/security-bundle": "^6",
         "symfony/twig-bundle": "^6",
-        "symfony/http-client": "^6",
+        "symfony/http-client": "^7",
         "twig/cache-extra": "^3",
         "deeplcom/deepl-php": "^1.9",
         "nyholm/psr7": "^1.8"
