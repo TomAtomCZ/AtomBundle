@@ -12,7 +12,7 @@
     "license" : "MIT",
     "require" : {
         "php": ">=8.1",
-        "doctrine/orm": "^2",
+        "doctrine/orm": "^2|^3",
         "gedmo/doctrine-extensions": "^3",
         "knplabs/doctrine-behaviors": "^2",
         "symfony/framework-bundle": "^6",
