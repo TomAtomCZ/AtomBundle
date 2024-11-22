@@ -9,18 +9,12 @@
     "keywords" : [
         "symfony atom bundle front-end editor"
     ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/jfsenechal/DoctrineBehaviors"
-        }
-    ],
     "license" : "MIT",
     "require" : {
         "php": ">=8.1",
-        "doctrine/orm": "^2|^3",
+        "doctrine/orm": "^2",
         "gedmo/doctrine-extensions": "^3",
-        "knplabs/doctrine-behaviors": "dev-sf7.0 as 2.6.3",
+        "knplabs/doctrine-behaviors": "^2",
         "symfony/framework-bundle": "^6",
         "symfony/security-bundle": "^6",
         "symfony/twig-bundle": "^6",
