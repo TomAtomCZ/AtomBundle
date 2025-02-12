@@ -61,13 +61,18 @@ class NodeHelper
 
             foreach ($locales as $locale) {
                 $translation = $atom->translate($locale, false);
-                if ($translation->isEmpty()) {
-                    // Create a new translation for the missing locale
-                    $newTranslation = new AtomTranslation();
-                    $newTranslation->setLocale($locale);
-                    $newTranslation->setBody($body);
-                    $atom->addTranslation($newTranslation);
-                    $this->entityManager->persist($newTranslation);
+                if ($translation->isEmpty() && $body !== null) {
+                    if (!empty($translation->getTranslatable())) {
+                        // Set default body to the existing atom
+                        $translation->setBody($body);
+                    } else {
+                        // Create a new translation for the missing locale
+                        $newTranslation = new AtomTranslation();
+                        $newTranslation->setLocale($locale);
+                        $newTranslation->setBody($body);
+                        $atom->addTranslation($newTranslation);
+                        $this->entityManager->persist($newTranslation);
+                    }
                 }
             }
 
