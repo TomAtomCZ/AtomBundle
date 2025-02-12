@@ -118,7 +118,7 @@ $(function () {
                 method: 'POST',
                 data: {editorID: atomLineId, editabledata: atomLineContent, atomType: 'atomline'}
             }).success(function () {
-                $('div#' + atomLineId).html(atomLineContent);
+                $('span#' + atomLineId).html(atomLineContent);
                 $body.prepend(saveMsg('ok'));
 
             }).fail(function () {

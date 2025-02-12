@@ -81,9 +81,9 @@ class NodeHelper
             $this->prepareCache($atom, $type);
 
             if ($this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY') && $this->authorizationChecker->isGranted('ROLE_ATOM_EDIT')) {
-                $result = '<div class="' . $type . '" id="' . $name . '">';
+                $type === 'atomline' ? $result = '<span class="' . $type . '" id="' . $name . '">' : $result = '<div class="' . $type . '" id="' . $name . '">';
                 $result .= $body;
-                $result .= '</div>';
+                $type === 'atomline' ? $result .= '</span>' : $result .= '</div>';
             } else {
                 $result = $body;
             }
@@ -116,6 +116,9 @@ class NodeHelper
             $cacheKey = $atom->getName() . '_' . $translation->getLocale();
 
             $this->cache->getCache()->get($cacheKey, function (ItemInterface $item) use ($atom, $translation, $type) {
+                if ($type === 'atomline') {
+                    return '<span class="' . $type . '" id="' . $atom->getName() . '">' . $translation->getBody() . '</span>';
+                }
                 return '<div class="' . $type . '" id="' . $atom->getName() . '">' . $translation->getBody() . '</div>';
             });
         }

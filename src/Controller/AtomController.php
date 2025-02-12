@@ -92,6 +92,9 @@ class AtomController extends AbstractController
                 $cacheKey = $atom->getName() . '_' . $locale;
                 $this->cache->getCache()->delete($cacheKey);
                 $this->cache->getCache()->get($cacheKey, function (ItemInterface $item) use ($atom, $atomType, $locale) {
+                    if ($atomType === 'atomline') {
+                        return '<span class="' . $atomType . '" id="' . $atom->getName() . '">' . $atom->translate($locale)->getBody() . '</span>';
+                    }
                     return '<div class="' . $atomType . '" id="' . $atom->getName() . '">' . $atom->translate($locale)->getBody() . '</div>';
                 });
             }
