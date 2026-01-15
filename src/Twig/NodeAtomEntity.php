@@ -17,7 +17,7 @@ class NodeAtomEntity extends Node implements NodeOutputInterface
 
     public int $entityId;
 
-    public function __construct(string $name, Node $body, int $lineno, string $entityName, AbstractExpression $entityMethod, AbstractExpression $entityId)
+    public function __construct(?string $name, Node $body, int $lineno, string $entityName, AbstractExpression $entityMethod, AbstractExpression $entityId)
     {
         $this->entityName = $entityName;
         $this->entityMethod = $entityMethod->getAttribute('name');
@@ -28,7 +28,8 @@ class NodeAtomEntity extends Node implements NodeOutputInterface
             'name' => $name,
             'entityName' => $entityName,
             'entityMethod' => $this->entityMethod,
-            'entityId' => $this->entityId
+            'entityId' => $this->entityId,
+            'default_locale' => null
         ], $lineno);
     }
 
@@ -41,7 +42,8 @@ class NodeAtomEntity extends Node implements NodeOutputInterface
     {
         $compiler
             ->addDebugInfo($this)
-            ->raw("yield from (function () use (\$context, \$macros) {\n")
+            ->raw('$isAdmin = $this->env->getExtension(\'TomAtom\AtomBundle\Twig\TomAtomExtension\')->getAuthorizationChecker()->isGranted(\'ROLE_ATOM_EDIT\');' . "\n")
+            ->raw("yield from (function () use (\$context, \$macros, \$isAdmin) {\n")
             ->indent()
             ->raw("return implode('', iterator_to_array((function () use (\$context, \$macros) {\n")
             ->indent()
@@ -49,7 +51,7 @@ class NodeAtomEntity extends Node implements NodeOutputInterface
             ->raw("return; yield '';\n")
             ->outdent()
             ->raw('})(), false));' . "\n")
-            ->raw('$body = $this->checkAtomEntity("' . $this->entityName . '", "' . $this->entityMethod . '", "' . $this->entityId . '", $body);' . "\n")
+            ->raw('$body = $this->env->getExtension(\'TomAtom\AtomBundle\Twig\TomAtomExtension\')->getTranslationNodeVisitor()->getHelper()->checkAtomEntity("' . $this->entityName . '", "' . $this->entityMethod . '", "' . $this->entityId . '", $body, $isAdmin);' . "\n")
             ->raw('yield $body;' . "\n")
             ->outdent()
             ->raw("})();\n");

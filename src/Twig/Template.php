@@ -32,7 +32,7 @@ class Template extends \Twig\Template
      * @throws OptimisticLockException
      * @throws ORMException
      */
-    public function checkAtom($name, $body)
+    public function checkAtom($name, $body, $isAdmin = null)
     {
         $env = $this->kernel->getEnvironment();
 
@@ -50,7 +50,11 @@ class Template extends \Twig\Template
                 $body = $atom->getBody();
             }
 
-            if ($this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY') && $this->authorizationChecker->isGranted('ROLE_ATOM_EDIT')) {
+            if ($isAdmin === null) {
+                $isAdmin = $this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY') && $this->authorizationChecker->isGranted('ROLE_ATOM_EDIT');
+            }
+
+            if ($isAdmin) {
                 $result = '<div class="atom" id="' . $name . '">';
                 $result .= $body;
                 $result .= '</div>';
@@ -69,7 +73,7 @@ class Template extends \Twig\Template
      * @throws OptimisticLockException
      * @throws ORMException
      */
-    public function checkAtomLine($name, $body)
+    public function checkAtomLine($name, $body, $isAdmin = null): string
     {
         $env = $this->kernel->getEnvironment();
 
@@ -87,7 +91,12 @@ class Template extends \Twig\Template
                 $body = $atom->getBody();
             }
 
-            if ($this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY') && $this->authorizationChecker->isGranted('ROLE_ATOM_EDIT')) {
+            if ($isAdmin === null) {
+                $isAdmin = $this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY') && $this->authorizationChecker->isGranted('ROLE_ATOM_EDIT');
+            }
+
+            if ($isAdmin) {
+                $body = strip_tags($body);
                 $result = '<span class="atomline" id="' . $name . '">';
                 $result .= $body;
                 $result .= '</span>';
@@ -102,7 +111,7 @@ class Template extends \Twig\Template
         return $result;
     }
 
-    public function checkAtomEntity($name, $method, $id, $body)
+    public function checkAtomEntity($name, $method, $id, $body, $isAdmin = null)
     {
         $env = $this->kernel->getEnvironment();
 
@@ -117,7 +126,11 @@ class Template extends \Twig\Template
                 $body = call_user_func([$atom, 'get' . $prop]);
             }
 
-            if ($this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY') && $this->authorizationChecker->isGranted('ROLE_ATOM_EDIT')) {
+            if ($isAdmin === null) {
+                $isAdmin = $this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY') && $this->authorizationChecker->isGranted('ROLE_ATOM_EDIT');
+            }
+
+            if ($isAdmin) {
                 $result = '<div class="atomentity" data-atom-entity="' . $name . '" data-atom-id="' . $id . '" data-atom-method="' . $method . '">';
                 $result .= $body;
                 $result .= '</div>';

@@ -36,7 +36,7 @@ class NodeHelper
     /**
      * @throws InvalidArgumentException
      */
-    public function checkAtom($name, $body, $type = 'atom')
+    public function checkAtom($name, $body, $type = 'atom', $isAdmin = null)
     {
         $env = $this->kernel->getEnvironment();
 
@@ -85,11 +85,15 @@ class NodeHelper
             $this->entityManager->persist($atom);
             $this->entityManager->flush();
 
-            // Retrieve the body from the default translation
-            $body = $atom->translate($this->getDefaultLocale())->getBody();
+            // Retrieve the body from the current locale translation
+            $body = $atom->getBody();
             $this->prepareCache($atom, $type);
 
-            if ($this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY') && $this->authorizationChecker->isGranted('ROLE_ATOM_EDIT')) {
+            if ($isAdmin === null) {
+                $isAdmin = $this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY') && $this->authorizationChecker->isGranted('ROLE_ATOM_EDIT');
+            }
+
+            if ($isAdmin) {
                 $type === 'atomline' ? $result = '<span class="' . $type . '" id="' . $name . '">' : $result = '<div class="' . $type . '" id="' . $name . '">';
                 $result .= $body;
                 $type === 'atomline' ? $result .= '</span>' : $result .= '</div>';
@@ -107,9 +111,43 @@ class NodeHelper
     /**
      * @throws InvalidArgumentException
      */
-    public function checkAtomLine($name, $body)
+    public function checkAtomLine($name, $body, $isAdmin = null)
     {
-        return $this->checkAtom($name, $body, 'atomline');
+        return $this->checkAtom($name, $body, 'atomline', $isAdmin);
+    }
+
+    public function checkAtomEntity($name, $method, $id, $body, $isAdmin = null)
+    {
+        $env = $this->kernel->getEnvironment();
+
+        if ($env === 'prod') {
+            $prop = str_ireplace('get', '', str_ireplace('set', '', $method));
+
+            $atom = $this->entityManager->getRepository($name)->find($id);
+
+            if (!$atom) {
+                $result = $body;
+            } else {
+                $body = call_user_func([$atom, 'get' . $prop]);
+            }
+
+            if ($isAdmin === null) {
+                $isAdmin = $this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY') && $this->authorizationChecker->isGranted('ROLE_ATOM_EDIT');
+            }
+
+            if ($isAdmin) {
+                $result = '<div class="atomentity" data-atom-entity="' . $name . '" data-atom-id="' . $id . '" data-atom-method="' . $method . '">';
+                $result .= $body;
+                $result .= '</div>';
+            } else {
+                $result = $body;
+            }
+        } else {
+            // we are in `dev` or `test` environment: we want to bypass Atom persisting and loading.
+            $result = $body;
+        }
+
+        return $result;
     }
 
     public function getDefaultLocale(): mixed
@@ -125,16 +163,14 @@ class NodeHelper
     /**
      * @throws InvalidArgumentException
      */
-    private function prepareCache(Atom $atom, string $type): void
+    public function prepareCache(Atom $atom, string $type): void
     {
         foreach ($atom->getTranslations() as $translation) {
             $cacheKey = $atom->getName() . '_' . $translation->getLocale();
 
-            $this->cache->getCache()->get($cacheKey, function (ItemInterface $item) use ($atom, $translation, $type) {
-                if ($type === 'atomline') {
-                    return '<span class="' . $type . '" id="' . $atom->getName() . '">' . $translation->getBody() . '</span>';
-                }
-                return '<div class="' . $type . '" id="' . $atom->getName() . '">' . $translation->getBody() . '</div>';
+            $this->cache->getCache()->delete($cacheKey);
+            $this->cache->getCache()->get($cacheKey, function (ItemInterface $item) use ($translation) {
+                return $translation->getBody();
             });
         }
     }

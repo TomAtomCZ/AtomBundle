@@ -16,18 +16,17 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Contracts\Cache\ItemInterface;
 use TomAtom\AtomBundle\Entity\Atom;
 use TomAtom\AtomBundle\Services\DeepLService;
-use Twig\Extra\Cache\CacheRuntime;
+use TomAtom\AtomBundle\Services\NodeHelper;
 
 class AtomController extends AbstractController
 {
-    public function __construct(private readonly CacheRuntime           $cache,
-                                private readonly EntityManagerInterface $entityManager,
+    public function __construct(private readonly EntityManagerInterface $entityManager,
                                 private readonly AuthorizationChecker   $authorizationChecker,
                                 private readonly ParameterBagInterface  $parameterBag,
-                                private readonly DeepLService           $deepL)
+                                private readonly DeepLService           $deepL,
+                                private readonly NodeHelper             $nodeHelper)
     {
     }
 
@@ -87,17 +86,8 @@ class AtomController extends AbstractController
             $atom->mergeNewTranslations();
             $this->entityManager->flush();
 
-            // Remove old data from cache and save new one
-            foreach ($enabledLocales as $locale) {
-                $cacheKey = $atom->getName() . '_' . $locale;
-                $this->cache->getCache()->delete($cacheKey);
-                $this->cache->getCache()->get($cacheKey, function (ItemInterface $item) use ($atom, $atomType, $locale) {
-                    if ($atomType === 'atomline') {
-                        return '<span class="' . $atomType . '" id="' . $atom->getName() . '">' . $atom->translate($locale)->getBody() . '</span>';
-                    }
-                    return '<div class="' . $atomType . '" id="' . $atom->getName() . '">' . $atom->translate($locale)->getBody() . '</div>';
-                });
-            }
+            // Refresh cache
+            $this->nodeHelper->prepareCache($atom, $atomType);
         } catch (Exception|InvalidArgumentException $e) {
             return new JsonResponse([
                 'status' => 'error',

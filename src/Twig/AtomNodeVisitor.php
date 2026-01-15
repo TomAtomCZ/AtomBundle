@@ -19,6 +19,11 @@ class AtomNodeVisitor implements NodeVisitorInterface
         $this->nodeHelper = $nodeHelper;
     }
 
+    public function getHelper(): NodeHelper
+    {
+        return $this->nodeHelper;
+    }
+
     /**
      * @throws InvalidArgumentException
      */
@@ -30,7 +35,7 @@ class AtomNodeVisitor implements NodeVisitorInterface
             if ($node->getNode('body')->hasAttribute('data')) {
                 $defaultBody = $node->getNode('body')->getAttribute('data');
             }
-            $body = $this->nodeHelper->checkAtom($atomName, $defaultBody);
+            $body = $this->nodeHelper->checkAtom($atomName, $defaultBody, 'atom', false);
             $node->setNode('body', new BodyNode([
                 new TextNode(!is_null($body) ? $body : '', 1),
             ]));
@@ -43,7 +48,7 @@ class AtomNodeVisitor implements NodeVisitorInterface
             if ($node->getNode('body')->hasAttribute('data')) {
                 $defaultBody = $node->getNode('body')->getAttribute('data');
             }
-            $body = $this->nodeHelper->checkAtomLine($atomName, $defaultBody);
+            $body = $this->nodeHelper->checkAtomLine($atomName, $defaultBody, false);
             $node->setNode('body', new BodyNode([
                 new TextNode(!is_null($body) ? $body : '', 1),
             ]));

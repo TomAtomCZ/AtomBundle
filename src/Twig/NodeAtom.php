@@ -24,6 +24,7 @@ class NodeAtom extends Node implements NodeOutputInterface
     {
         $compiler
             ->addDebugInfo($this)
+            ->raw('$isAdmin = $this->env->getExtension(\'TomAtom\AtomBundle\Twig\TomAtomExtension\')->getAuthorizationChecker()->isGranted(\'ROLE_ATOM_EDIT\');' . "\n")
             ->raw('$cacheKey = "' . $this->getAttribute('name') . '_" . $this->env->getRuntime(\'TomAtom\AtomBundle\Services\AtomRuntime\')->getRequestStack()->getCurrentRequest()->getLocale();' . "\n")
             ->raw("\$cached = \$this->env->getRuntime('Twig\Extra\Cache\CacheRuntime')->getCache()->get(\$cacheKey, function (\Symfony\Contracts\Cache\ItemInterface \$item) use (\$context, \$macros) {\n")
             ->indent()
@@ -35,9 +36,14 @@ class NodeAtom extends Node implements NodeOutputInterface
             ->raw('})(), false));')
             ->outdent()
             ->raw("});\n")
+            ->raw("if (\$isAdmin) {\n")
+            ->indent()
+            ->raw('$cached = \'<div class="atom" id="' . $this->getAttribute('name') . '">\' . $cached . \'</div>\';' . "\n")
+            ->outdent()
+            ->raw("}\n")
             ->raw("if ('' !== \$cached) {\n")
             ->indent()
-            ->raw("yield new Markup(\$cached, \$this->env->getCharset());\n")
+            ->raw("yield new \Twig\Markup(\$cached, \$this->env->getCharset());\n")
             ->outdent()
             ->raw("}\n");
     }
