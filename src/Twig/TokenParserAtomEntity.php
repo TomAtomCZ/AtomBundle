@@ -27,15 +27,15 @@ class TokenParserAtomEntity extends AbstractTokenParser
         $stream->expect(Token::PUNCTUATION_TYPE, ':');
         $entityName = $stream->expect(Token::NAME_TYPE)->getValue();
         $stream->expect(Token::PUNCTUATION_TYPE, ',');
-        $entityMethod = $this->parser->getExpressionParser()->parseExpression();
+        $entityMethod = $this->parser->parseExpression();
         $stream->expect(Token::PUNCTUATION_TYPE, ',');
-        $entityId = $this->parser->getExpressionParser()->parseExpression();
+        $entityId = $this->parser->parseExpression();
 
         if ($stream->nextIf(Token::BLOCK_END_TYPE)) {
             $body = $this->parser->subparse([$this, 'decideAtomEntityEnd'], true);
         } else {
             $body = new Node([
-                new PrintNode($this->parser->getExpressionParser()->parseExpression(), $lineno),
+                new PrintNode($this->parser->parseExpression(), $lineno),
             ]);
         }
 

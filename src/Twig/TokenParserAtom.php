@@ -28,7 +28,7 @@ class TokenParserAtom extends AbstractTokenParser
             $body = $this->parser->subparse([$this, 'decideAtomEnd'], true);
         } else {
             $body = new Node([
-                new PrintNode($this->parser->getExpressionParser()->parseExpression(), $lineno),
+                new PrintNode($this->parser->parseExpression(), $lineno),
             ]);
         }
 
