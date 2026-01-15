@@ -132,20 +132,24 @@ class Template extends \Twig\Template
         return $result;
     }
 
-    // must be implemented, will be overloaded in final template
+    // must be implemented, will be overloaded in the final template
     public function getTemplateName(): string
     {
+        return '';
     }
 
     public function getDebugInfo(): array
     {
+        return [];
     }
 
     protected function doDisplay(array $context, array $blocks = array()): iterable
     {
+        return [];
     }
 
     public function getSourceContext(): Source
     {
+        return new Source('', $this->getTemplateName());
     }
 }
