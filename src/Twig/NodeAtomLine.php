@@ -2,10 +2,12 @@
 
 namespace TomAtom\AtomBundle\Twig;
 
+use Twig\Attribute\YieldReady;
 use Twig\Compiler;
 use Twig\Node\Node;
 use Twig\Node\NodeOutputInterface;
 
+#[YieldReady]
 class NodeAtomLine extends Node implements NodeOutputInterface
 {
     public function __construct(string $name, Node $body, int $lineno, ?string $tag = null)

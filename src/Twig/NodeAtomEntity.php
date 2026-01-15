@@ -2,11 +2,13 @@
 
 namespace TomAtom\AtomBundle\Twig;
 
+use Twig\Attribute\YieldReady;
 use Twig\Compiler;
 use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Node;
 use Twig\Node\NodeOutputInterface;
 
+#[YieldReady]
 class NodeAtomEntity extends Node implements NodeOutputInterface
 {
     public string $entityName;
