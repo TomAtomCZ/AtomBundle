@@ -123,7 +123,12 @@ class Template extends \Twig\Template
             if (!$atom) {
                 $result = $body;
             } else {
-                $body = call_user_func([$atom, 'get' . $prop]);
+                $getProp = (str_starts_with($method, 'get') || str_starts_with($method, 'is')) ? $method : 'get' . ucfirst($prop);
+                if (method_exists($atom, $getProp)) {
+                    $body = call_user_func([$atom, $getProp]);
+                } else {
+                    $body = call_user_func([$atom, 'get' . ucfirst($prop)]);
+                }
             }
 
             if ($isAdmin === null) {

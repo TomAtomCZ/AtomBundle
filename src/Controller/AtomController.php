@@ -133,8 +133,19 @@ class AtomController extends AbstractController
         $this->entityManager->persist($object);
         $this->entityManager->flush();
 
+        // Get updated content (in case there is some transformation in setter/getter)
+        $prop = str_ireplace('get', '', str_ireplace('set', '', $entityMethod));
+        $getProp = (str_starts_with($entityMethod, 'get') || str_starts_with($entityMethod, 'is')) ? $entityMethod : 'get' . ucfirst($prop);
+
+        if (method_exists($object, $getProp)) {
+            $updatedContent = call_user_func([$object, $getProp]);
+        } else {
+            $updatedContent = call_user_func([$object, 'get' . ucfirst($prop)]);
+        }
+
         return new JsonResponse([
-            'status' => 'ok'
+            'status' => 'ok',
+            'content' => $updatedContent
         ]);
     }
 

@@ -11,24 +11,15 @@ use Twig\Node\NodeOutputInterface;
 #[YieldReady]
 class NodeAtomEntity extends Node implements NodeOutputInterface
 {
-    public string $entityName;
-
-    public string $entityMethod;
-
-    public int $entityId;
-
     public function __construct(?string $name, Node $body, int $lineno, string $entityName, AbstractExpression $entityMethod, AbstractExpression $entityId)
     {
-        $this->entityName = $entityName;
-        $this->entityMethod = $entityMethod->getAttribute('name');
-        $this->entityId = $entityId->getAttribute('value');
         parent::__construct([
-            'body' => $body
+            'body' => $body,
+            'entityMethod' => $entityMethod,
+            'entityId' => $entityId,
         ], [
             'name' => $name,
             'entityName' => $entityName,
-            'entityMethod' => $this->entityMethod,
-            'entityId' => $this->entityId,
             'default_locale' => null
         ], $lineno);
     }
@@ -43,16 +34,22 @@ class NodeAtomEntity extends Node implements NodeOutputInterface
         $compiler
             ->addDebugInfo($this)
             ->raw('$isAdmin = $this->env->getExtension(\'TomAtom\AtomBundle\Twig\TomAtomExtension\')->getAuthorizationChecker()->isGranted(\'ROLE_ATOM_EDIT\');' . "\n")
-            ->raw("yield from (function () use (\$context, \$macros, \$isAdmin) {\n")
+            ->raw('$entityMethod = ')
+            ->subcompile($this->getNode('entityMethod'))
+            ->raw(";\n")
+            ->raw('$entityId = ')
+            ->subcompile($this->getNode('entityId'))
+            ->raw(";\n")
+            ->raw("yield from (function () use (\$context, \$macros, \$isAdmin, \$entityMethod, \$entityId) {\n")
             ->indent()
-            ->raw("return implode('', iterator_to_array((function () use (\$context, \$macros) {\n")
+            ->raw('$body = implode(\'\', iterator_to_array((function () use ($context, $macros) {' . "\n")
             ->indent()
             ->subcompile($this->getNode('body'))
             ->raw("return; yield '';\n")
             ->outdent()
             ->raw('})(), false));' . "\n")
-            ->raw('$body = $this->env->getExtension(\'TomAtom\AtomBundle\Twig\TomAtomExtension\')->getTranslationNodeVisitor()->getHelper()->checkAtomEntity("' . $this->entityName . '", "' . $this->entityMethod . '", "' . $this->entityId . '", $body, $isAdmin);' . "\n")
-            ->raw('yield $body;' . "\n")
+            ->raw('$body = $this->env->getExtension(\'TomAtom\AtomBundle\Twig\TomAtomExtension\')->getTranslationNodeVisitor()->getHelper()->checkAtomEntity("' . $this->getAttribute('entityName') . '", $entityMethod, $entityId, $body, $isAdmin);' . "\n")
+            ->raw('if ($body !== null) { yield new \Twig\Markup($body, $this->env->getCharset()); }' . "\n")
             ->outdent()
             ->raw("})();\n");
     }

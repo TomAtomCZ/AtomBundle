@@ -3,6 +3,7 @@
 namespace TomAtom\AtomBundle\Twig;
 
 use Twig\Error\SyntaxError;
+use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Node;
 use Twig\Node\NodeOutputInterface;
 use Twig\Node\PrintNode;
@@ -23,11 +24,26 @@ class TokenParserAtomEntity extends AbstractTokenParser
     {
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
-        $entityNamespace = $stream->expect(Token::NAME_TYPE)->getValue();
-        $stream->expect(Token::PUNCTUATION_TYPE, ':');
         $entityName = $stream->expect(Token::NAME_TYPE)->getValue();
+        if ($stream->nextIf(Token::PUNCTUATION_TYPE, ':')) {
+            $entityName .= ':' . $stream->expect(Token::NAME_TYPE)->getValue();
+            if ($stream->nextIf(Token::PUNCTUATION_TYPE, ':')) {
+                $entityName .= ':' . $stream->expect(Token::NAME_TYPE)->getValue();
+            }
+        }
+
+        if (!str_contains($entityName, 'App\\Entity\\')) {
+            $entityName = 'App\\Entity\\' . ucfirst($entityName);
+        }
+
         $stream->expect(Token::PUNCTUATION_TYPE, ',');
-        $entityMethod = $this->parser->parseExpression();
+        if ($stream->test(Token::NAME_TYPE)) {
+            $methodName = $stream->expect(Token::NAME_TYPE)->getValue();
+            $entityMethod = new ConstantExpression($methodName, $lineno);
+        } else {
+            $entityMethod = $this->parser->parseExpression();
+        }
+
         $stream->expect(Token::PUNCTUATION_TYPE, ',');
         $entityId = $this->parser->parseExpression();
 
@@ -41,7 +57,7 @@ class TokenParserAtomEntity extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        return new NodeAtomEntity(null, $body, $lineno, $entityNamespace . ':' . $entityName, $entityMethod, $entityId);
+        return new NodeAtomEntity(null, $body, $lineno, 'App\\Entity\\' . ucfirst($entityName), $entityMethod, $entityId);
     }
 
     public function decideAtomEntityEnd(Token $token): bool

@@ -8,7 +8,7 @@ $(function () {
         $atomLines = $('.atomline'),
         $atomEntities = $('.atomentity'),
         $atomLineEditorBody = '<div id="atom-line-editor-body"><h3>Edit text</h3><input type="text" id="atom-line-editor"><div><div id="atom-line-editor-cancel-btn">Cancel</div><div id="atom-line-editor-send-btn">Save</div></div></div>',
-        $atomEntityEditorBody = '<div id="atom-entity-editor-body"><h3>Edit property</h3><input type="text" id="atom-entity-editor"><div><div id="atom-entity-editor-cancel-btn">Cancel</div><div id="#atom-line-editor-send-btn">Save</div></div></div>',
+        $atomEntityEditorBody = '<div id="atom-entity-editor-body"><h3>Edit property</h3><input type="text" id="atom-entity-editor"><div><div id="atom-entity-editor-cancel-btn">Cancel</div><div id="atom-entity-editor-send-btn">Save</div></div></div>',
         $atomConfig = $('#atom-config'),
         $atomEntityConfig = $('#atom-entity-config'),
         atomsEditable = !!JSON.parse(window.localStorage.getItem('atoms_enabled')),
@@ -117,10 +117,14 @@ $(function () {
                 url: $atomConfig.data('save-url'),
                 method: 'POST',
                 data: {editorID: atomLineId, editabledata: atomLineContent, atomType: 'atomline'}
-            }).success(function () {
-                $('span#' + atomLineId).html(atomLineContent);
-                $body.prepend(saveMsg('ok'));
-
+            }).success(function (res) {
+                const responseData = (typeof res === 'string') ? JSON.parse(res) : res;
+                if (responseData.status === 'ok') {
+                    $('span#' + atomLineId).html(atomLineContent);
+                    $body.prepend(saveMsg('ok', responseData.details));
+                } else {
+                    $body.prepend(saveMsg('error', responseData.details));
+                }
             }).fail(function () {
                 $body.prepend(saveMsg('error'));
             });
@@ -174,9 +178,15 @@ $(function () {
                     id: atomEntityId,
                     content: atomEntityContent
                 }
-            }).success(function () {
-                $('div[data-atom-entity="' + atomEntityEntity + '"][data-atom-id="' + atomEntityId + '"]').html(atomEntityContent);
-                $body.prepend(saveMsg('ok'));
+            }).success(function (res) {
+                const responseData = (typeof res === 'string') ? JSON.parse(res) : res;
+                if (responseData.status === 'ok') {
+                    const escapedEntity = atomEntityEntity.replace(/\\/g, '\\\\');
+                    $('div[data-atom-entity="' + escapedEntity + '"][data-atom-id="' + atomEntityId + '"]').html(responseData.content);
+                    $body.prepend(saveMsg('ok'));
+                } else {
+                    $body.prepend(saveMsg('error', responseData.details));
+                }
             }).fail(function () {
                 $body.prepend(saveMsg('error'));
             });
