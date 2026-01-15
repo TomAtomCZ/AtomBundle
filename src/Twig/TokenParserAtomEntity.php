@@ -41,7 +41,7 @@ class TokenParserAtomEntity extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        return new NodeAtomEntity(null, $body, $lineno, $entityNamespace . ':' . $entityName, $entityMethod, $entityId, $this->getTag());
+        return new NodeAtomEntity(null, $body, $lineno, $entityNamespace . ':' . $entityName, $entityMethod, $entityId);
     }
 
     public function decideAtomEntityEnd(Token $token): bool

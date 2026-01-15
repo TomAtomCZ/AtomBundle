@@ -10,9 +10,9 @@ use Twig\Node\NodeOutputInterface;
 #[YieldReady]
 class NodeAtom extends Node implements NodeOutputInterface
 {
-    public function __construct(string $name, Node $body, int $lineno, ?string $tag = null)
+    public function __construct(string $name, Node $body, int $lineno)
     {
-        parent::__construct(array('body' => $body), array('name' => $name, 'default_locale' => null), $lineno, $tag);
+        parent::__construct(array('body' => $body), array('name' => $name, 'default_locale' => null), $lineno);
     }
 
     /**

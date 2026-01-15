@@ -34,7 +34,7 @@ class TokenParserAtomLine extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        return new NodeAtomLine($name, $body, $lineno, $this->getTag());
+        return new NodeAtomLine($name, $body, $lineno);
     }
 
     public function decideAtomLineEnd(Token $token): bool
