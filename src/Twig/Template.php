@@ -3,6 +3,8 @@
 namespace TomAtom\AtomBundle\Twig;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use TomAtom\AtomBundle\Entity\Atom;
@@ -26,6 +28,10 @@ class Template extends \Twig\Template
         $this->kernel = $taExt->getKernel();
     }
 
+    /**
+     * @throws OptimisticLockException
+     * @throws ORMException
+     */
     public function checkAtom($name, $body)
     {
         $env = $this->kernel->getEnvironment();
@@ -59,6 +65,10 @@ class Template extends \Twig\Template
         return $result;
     }
 
+    /**
+     * @throws OptimisticLockException
+     * @throws ORMException
+     */
     public function checkAtomLine($name, $body)
     {
         $env = $this->kernel->getEnvironment();

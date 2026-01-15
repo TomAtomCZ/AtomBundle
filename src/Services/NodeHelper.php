@@ -3,6 +3,7 @@
 namespace TomAtom\AtomBundle\Services;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -32,6 +33,9 @@ class NodeHelper
         $this->cache = $cache;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function checkAtom($name, $body, $type = 'atom')
     {
         $env = $this->kernel->getEnvironment();
@@ -100,6 +104,9 @@ class NodeHelper
         return $result;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function checkAtomLine($name, $body)
     {
         return $this->checkAtom($name, $body, 'atomline');
@@ -115,6 +122,9 @@ class NodeHelper
         return $this->parameterBag->get('kernel.enabled_locales');
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     private function prepareCache(Atom $atom, string $type): void
     {
         foreach ($atom->getTranslations() as $translation) {

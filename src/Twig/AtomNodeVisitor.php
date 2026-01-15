@@ -2,6 +2,7 @@
 
 namespace TomAtom\AtomBundle\Twig;
 
+use Psr\Cache\InvalidArgumentException;
 use TomAtom\AtomBundle\Services\NodeHelper;
 use Twig\Environment;
 use Twig\Node\BodyNode;
@@ -18,6 +19,9 @@ class AtomNodeVisitor implements NodeVisitorInterface
         $this->nodeHelper = $nodeHelper;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function enterNode(Node $node, Environment $env): Node
     {
         if ($node instanceof NodeAtom) {
