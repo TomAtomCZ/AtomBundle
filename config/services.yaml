@@ -35,8 +35,8 @@ services:
         resource: '../src/Controller/'
         tags: [ 'controller.service_arguments' ]
         arguments:
-            $cache: "@twig.runtime.cache"
             $entityManager: "@doctrine.orm.entity_manager"
             $authorizationChecker: '@security.authorization_checker'
             $parameterBag: '@parameter_bag'
             $deepL: '@tom_atom.service.deepl'
+            $nodeHelper: "@tom_atom.service.node_helper"
