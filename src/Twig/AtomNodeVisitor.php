@@ -7,10 +7,9 @@ use Twig\Environment;
 use Twig\Node\BodyNode;
 use Twig\Node\Node;
 use Twig\Node\TextNode;
-use Twig\NodeVisitor\AbstractNodeVisitor;
+use Twig\NodeVisitor\NodeVisitorInterface;
 
-// TODO resolve AbstractNodeVisitor deprecation
-class AtomNodeVisitor extends AbstractNodeVisitor
+class AtomNodeVisitor implements NodeVisitorInterface
 {
     protected NodeHelper $nodeHelper;
 
@@ -19,7 +18,7 @@ class AtomNodeVisitor extends AbstractNodeVisitor
         $this->nodeHelper = $nodeHelper;
     }
 
-    public function doEnterNode(Node $node, Environment $env)
+    public function enterNode(Node $node, Environment $env): Node
     {
         if ($node instanceof NodeAtom) {
             $atomName = $node->getAttribute('name');
@@ -49,9 +48,8 @@ class AtomNodeVisitor extends AbstractNodeVisitor
         return $node;
     }
 
-    public function doLeaveNode(Node $node, Environment $env): Node
+    public function leaveNode(Node $node, Environment $env): ?Node
     {
-        // TODO: Implement doLeaveNode() method.
         return $node;
     }
 
