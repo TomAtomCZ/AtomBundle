@@ -33,7 +33,7 @@ class TokenParserAtomEntity extends AbstractTokenParser
         }
 
         if (!str_contains($entityName, 'App\\Entity\\')) {
-            $entityName = 'App\\Entity\\' . ucfirst($entityName);
+            $entityName = 'App\\Entity\\' . $entityName;
         }
 
         $stream->expect(Token::PUNCTUATION_TYPE, ',');
@@ -57,7 +57,7 @@ class TokenParserAtomEntity extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        return new NodeAtomEntity(null, $body, $lineno, 'App\\Entity\\' . ucfirst($entityName), $entityMethod, $entityId);
+        return new NodeAtomEntity(null, $body, $lineno, ucfirst($entityName), $entityMethod, $entityId);
     }
 
     public function decideAtomEntityEnd(Token $token): bool
