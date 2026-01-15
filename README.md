@@ -14,10 +14,15 @@
 * "symfony/framework-bundle": "~5.1"
 * "antishov/doctrine-extensions-bundle": "^1.4"
 
-**For Symfony 6+**
+**For Symfony 6**
 
 * "symfony/framework-bundle": "^6"
 * "stof/doctrine-extensions-bundle": "^1.9"
+
+**For Symfony 7**
+
+* "symfony/framework-bundle": "^7"
+* "stof/doctrine-extensions-bundle": "^1.10"
 
 **For all**
 
@@ -34,7 +39,7 @@
 > * for Symfony __~2.8__: `composer require tomatom/atom-bundle "~1.0"`
 > * for Symfony __~4.2__: `composer require tomatom/atom-bundle "~2.0"`
 > * for Symfony __~5__: `composer require tomatom/atom-bundle "3.0-alpha-5"`
-> * for Symfony __~6|~7__: `composer require tomatom/atom-bundle "^3"`
+> * for Symfony __~6|~7__: `composer require tomatom/atom-bundle "^3"` (Symfony 6 only – 3.1.2)
 
 ### Configuration:
 
@@ -170,15 +175,25 @@ framework:
 
 * for editing other entities, there is __Atom Entity__ tag, which takes these arguments:
 
-    * name of Bundle containing desired entity:Entity name (e.g. `AppBundle:Product`)
+    * name of Bundle containing desired entity:Entity name (e.g. `AppBundle:Product` / `Product`)
     * name of method used for saving content (usually some setter)
     * entity id
 
 * example (no need to add default value, it will be fetched by appropriate getter):
 
+**Symfony 6+**
+
 ```twig
 <div class="product-price">
-   {% atomentity  AppBundle:Product, setPrice, 123 %}{% endatomentity %}
+   {% atomentity Product, setPrice, 123 %}{% endatomentity %}
+<div>
+```
+
+**Symfony < 6**
+
+```twig
+<div class="product-price">
+   {% atomentity AppBundle:Product, setPrice, 123 %}{% endatomentity %}
 <div>
 ```
 
