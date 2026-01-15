@@ -32,6 +32,7 @@ class TokenParserAtomEntity extends AbstractTokenParser
             }
         }
 
+        $entityName = ucfirst($entityName);
         if (!str_contains($entityName, 'App\\Entity\\')) {
             $entityName = 'App\\Entity\\' . $entityName;
         }
