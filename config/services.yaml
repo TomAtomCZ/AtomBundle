@@ -17,12 +17,14 @@ services:
             $kernelInterface: "@kernel"
             $parameterBag: "@parameter_bag"
             $cache: "@twig.runtime.cache"
+            $requestStack: "@request_stack"
 
     tom_atom.service.atom_runtime:
         class: TomAtom\AtomBundle\Services\AtomRuntime
         tags: [ 'twig.runtime' ]
         arguments:
             $requestStack: '@request_stack'
+            $nodeHelper: '@tom_atom.service.node_helper'
 
     tom_atom.service.deepl:
         class: TomAtom\AtomBundle\Services\DeepLService

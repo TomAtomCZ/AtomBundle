@@ -8,7 +8,7 @@ class AtomRuntime
 {
     private RequestStack $requestStack;
 
-    public function __construct(RequestStack $requestStack)
+    public function __construct(RequestStack $requestStack, private readonly NodeHelper $nodeHelper)
     {
         $this->requestStack = $requestStack;
     }
@@ -18,4 +18,8 @@ class AtomRuntime
         return $this->requestStack;
     }
 
+    public function getAtomBody(string $name, string $defaultBody): string
+    {
+        return $this->nodeHelper->getAtomBody($name, $defaultBody);
+    }
 }

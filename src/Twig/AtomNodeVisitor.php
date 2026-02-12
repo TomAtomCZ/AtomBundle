@@ -5,9 +5,7 @@ namespace TomAtom\AtomBundle\Twig;
 use Psr\Cache\InvalidArgumentException;
 use TomAtom\AtomBundle\Services\NodeHelper;
 use Twig\Environment;
-use Twig\Node\BodyNode;
 use Twig\Node\Node;
-use Twig\Node\TextNode;
 use Twig\NodeVisitor\NodeVisitorInterface;
 
 class AtomNodeVisitor implements NodeVisitorInterface
@@ -35,10 +33,7 @@ class AtomNodeVisitor implements NodeVisitorInterface
             if ($node->getNode('body')->hasAttribute('data')) {
                 $defaultBody = $node->getNode('body')->getAttribute('data');
             }
-            $body = $this->nodeHelper->checkAtom($atomName, $defaultBody, 'atom', false);
-            $node->setNode('body', new BodyNode([
-                new TextNode(!is_null($body) ? $body : '', 1),
-            ]));
+            $this->nodeHelper->checkAtom($atomName, $defaultBody, 'atom', false);
             $node->setAttribute('default_locale', $this->nodeHelper->getDefaultLocale());
         }
 
@@ -48,10 +43,7 @@ class AtomNodeVisitor implements NodeVisitorInterface
             if ($node->getNode('body')->hasAttribute('data')) {
                 $defaultBody = $node->getNode('body')->getAttribute('data');
             }
-            $body = $this->nodeHelper->checkAtomLine($atomName, $defaultBody, false);
-            $node->setNode('body', new BodyNode([
-                new TextNode(!is_null($body) ? $body : '', 1),
-            ]));
+            $this->nodeHelper->checkAtomLine($atomName, $defaultBody, false);
         }
 
         return $node;

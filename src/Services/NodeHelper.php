@@ -5,6 +5,7 @@ namespace TomAtom\AtomBundle\Services;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -19,18 +20,21 @@ class NodeHelper
     protected KernelInterface $kernel;
     protected ParameterBagInterface $parameterBag;
     protected CacheRuntime $cache;
+    protected RequestStack $requestStack;
 
     public function __construct(EntityManagerInterface        $entityManager,
                                 AuthorizationCheckerInterface $authorizationChecker,
                                 KernelInterface               $kernelInterface,
                                 ParameterBagInterface         $parameterBag,
-                                CacheRuntime                  $cache)
+                                CacheRuntime                  $cache,
+                                RequestStack                  $requestStack)
     {
         $this->entityManager = $entityManager;
         $this->authorizationChecker = $authorizationChecker;
         $this->kernel = $kernelInterface;
         $this->parameterBag = $parameterBag;
         $this->cache = $cache;
+        $this->requestStack = $requestStack;
     }
 
     /**
@@ -153,6 +157,23 @@ class NodeHelper
         }
 
         return $result;
+    }
+
+    public function getAtomBody(string $name, string $defaultBody): string
+    {
+        $env = $this->kernel->getEnvironment();
+
+        if ($env === 'prod') {
+            $atom = $this->entityManager->getRepository(Atom::class)->findOneBy(['name' => $name]);
+            if (!$atom) {
+                return $defaultBody;
+            }
+
+            $currentLocale = $this->requestStack->getCurrentRequest()?->getLocale() ?? $this->getDefaultLocale();
+            return $atom->translate($currentLocale, false)->getBody() ?? '';
+        }
+
+        return $defaultBody;
     }
 
     public function getDefaultLocale(): mixed
