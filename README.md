@@ -24,6 +24,11 @@
 * "symfony/framework-bundle": "^7"
 * "stof/doctrine-extensions-bundle": "^1.10"
 
+**For Symfony 8** (requires PHP 8.4+)
+
+* "symfony/framework-bundle": "^8"
+* "stof/doctrine-extensions-bundle": "^1.15"
+
 **For all**
 
 * jQuery
@@ -39,7 +44,7 @@
 > * for Symfony __~2.8__: `composer require tomatom/atom-bundle "~1.0"`
 > * for Symfony __~4.2__: `composer require tomatom/atom-bundle "~2.0"`
 > * for Symfony __~5__: `composer require tomatom/atom-bundle "3.0-alpha-5"`
-> * for Symfony __~6|~7__: `composer require tomatom/atom-bundle "^3"` (Symfony 6 only – 3.1.2)
+> * for Symfony __~6|~7|~8__: `composer require tomatom/atom-bundle "^3"` (Symfony 6 only – 3.1.2)
 
 ### Configuration:
 
@@ -67,13 +72,9 @@ framework:
   translator: { fallbacks: [ "%locale%" ] }
 ```
 
-* `twig.yaml:`
-
-```yaml
-twig:
-  # ...
-  base_template_class: TomAtom\AtomBundle\Twig\Template
-```
+> __Note:__ the `twig.base_template_class` option is no longer needed – the Atom tags are compiled against Twig runtime
+> services instead. The option is deprecated since Symfony 7.1, ignored by Twig 3.12+ and __removed in Symfony 8__
+> (leaving it in `twig.yaml` prevents the app from booting there), so drop it when upgrading.
 
 **Symfony < 6**
 

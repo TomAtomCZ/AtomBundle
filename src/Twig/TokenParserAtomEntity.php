@@ -4,8 +4,8 @@ namespace TomAtom\AtomBundle\Twig;
 
 use Twig\Error\SyntaxError;
 use Twig\Node\Expression\ConstantExpression;
-use Twig\Node\Node;
 use Twig\Node\NodeOutputInterface;
+use Twig\Node\Nodes;
 use Twig\Node\PrintNode;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
@@ -51,7 +51,7 @@ class TokenParserAtomEntity extends AbstractTokenParser
         if ($stream->nextIf(Token::BLOCK_END_TYPE)) {
             $body = $this->parser->subparse([$this, 'decideAtomEntityEnd'], true);
         } else {
-            $body = new Node([
+            $body = new Nodes([
                 new PrintNode($this->parser->parseExpression(), $lineno),
             ]);
         }

@@ -3,7 +3,7 @@
 namespace TomAtom\AtomBundle\Twig;
 
 use Twig\Error\SyntaxError;
-use Twig\Node\Node;
+use Twig\Node\Nodes;
 use Twig\Node\PrintNode;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
@@ -27,7 +27,7 @@ class TokenParserAtomLine extends AbstractTokenParser
         if ($stream->nextIf(Token::BLOCK_END_TYPE)) {
             $body = $this->parser->subparse([$this, 'decideAtomLineEnd'], true);
         } else {
-            $body = new Node([
+            $body = new Nodes([
                 new PrintNode($this->parser->parseExpression(), $lineno),
             ]);
         }
