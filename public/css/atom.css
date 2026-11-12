@@ -128,3 +128,40 @@ div.ckeditor-save-msg:before {
     opacity : 0.9;
     z-index: -1;
 }
+
+
+/* Jodit inline editor (Atoms) */
+.atom.jodit_inline:not(.atom-editing) > .jodit-toolbar__box {
+    display: none;
+}
+
+.atom.jodit_inline.atom-editing {
+    outline: 2px solid #009999 !important;
+}
+
+/* Uploaded images dialog */
+.atom-image-browser {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+    padding: 8px;
+}
+
+.atom-image-browser__item {
+    aspect-ratio: 1;
+    padding: 4px;
+    border: 2px solid #ddd;
+    background: #fff;
+    cursor: pointer;
+}
+
+.atom-image-browser__item:hover, .atom-image-browser__item:focus {
+    border-color: #009999;
+}
+
+.atom-image-browser__item img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}

@@ -1,5 +1,5 @@
 /**
- * @description Atom frontend functionality
+ * @description Atom frontend functionality (rich text editing is provided by Jodit, https://xdsoft.net/jodit/)
  */
 $(function () {
     const
@@ -17,7 +17,7 @@ $(function () {
         $atomToggleBtn = '<div class="atoms-' + (atomsEditable ? "enabled" : "disabled") + '" id="atom-toggle-btn" title="Toggle Atoms"></div>',
 
         saveMsg = function (type, details) {
-            $('div.ckeditor-save-msg').hide();
+            $('div.ckeditor-save-msg').remove();
             let typeClass,
                 typeMsg;
 
@@ -39,15 +39,24 @@ $(function () {
             if (details) {
                 typeMsg += ' (' + details + ')';
             }
-            return '<div class="ckeditor-save-msg ' + typeClass + '">' + typeMsg + '</div>';
+            // Use text(), the details come from the server and must not be interpreted as HTML
+            return $('<div class="ckeditor-save-msg"></div>').addClass(typeClass).text(typeMsg);
         },
 
-        errorDetails = function (xhr) {
-            try {
-                return JSON.parse(xhr.responseText).details;
-            } catch (e) {
-                return null;
+        parseResponse = function (res) {
+            if (typeof res === 'string') {
+                try {
+                    return JSON.parse(res);
+                } catch (e) {
+                    return {status: 'error'};
+                }
             }
+            return res || {status: 'error'};
+        },
+
+        // Details of an error response, e.g. an invalid CSRF token
+        errorDetails = function (xhr) {
+            return parseResponse(xhr && xhr.responseText).details;
         };
 
     $body.on('click mouseenter', 'div.ckeditor-save-msg', function () {
@@ -55,60 +64,17 @@ $(function () {
     });
 
     if (atomsEditable) {
-        // Mark Atoms for CKEditor
-        $atoms.each(function () {
-            $(this).attr('contenteditable', true);
-        });
-
-        // Show Atom on mouseover
-        $atoms.on('mouseenter', function () {
-            if (!$($(this)[0]).hasClass('cke_focus')) {
-                $(this).css('outline', '4px dashed #009999');
-            }
-        });
-        $atoms.on('mouseleave focus', function () {
-            $(this).css('outline', '0');
-        });
-        $atoms.on('click', function () {
-            $('#atom-line-editor-body').remove();
-        });
-
-        CKEDITOR.config.inlinesave = {
-            postUrl: $atomConfig.data('save-url'),
-            postData: {_token: csrfToken}, // + editorID, editabledata
-            useJSON: false,
-            useColorIcon: true,
-            onSave: function () {
-                $body.prepend(saveMsg());
-                return true;
-            },
-            onSuccess: function (editor, data) {
-                const responseData = JSON.parse(data);
-                $body.prepend(saveMsg(responseData.status, responseData.details));
-                return true;
-            },
-            onFailure: function (editor, status, xhr) {
-                $body.prepend(saveMsg('error', xhr ? errorDetails(xhr) : null));
-                return false;
-            }
-        };
-
-        // Image upload (uploadimage plugin): add the CSRF token between xhr.open (priority 5) and xhr.send (priority 999)
-        CKEDITOR.on('instanceCreated', function (evt) {
-            evt.editor.on('fileUploadRequest', function (uploadEvt) {
-                uploadEvt.data.fileLoader.xhr.setRequestHeader('X-CSRF-Token', csrfToken);
-            }, null, null, 10);
-        });
-
-        CKEDITOR.config.uploadUrl = $atomConfig.data('image-upload-url');
-        CKEDITOR.config.imageBrowser_listUrl = $atomConfig.data('image-list-url');
+        // Atoms (rich text editor)
+        if (typeof Jodit === 'undefined') {
+            console.error('Atom: the Jodit editor is not loaded, Atoms cannot be edited.');
+        } else {
+            initAtomEditors();
+        }
 
         // AtomLines
         // Show AtomLine on mouseover
         $atomLines.on('mouseenter', function () {
-            if (!$($(this)[0]).hasClass('cke_focus')) {
-                $(this).css('outline', '4px dashed #ff8000');
-            }
+            $(this).css('outline', '4px dashed #ff8000');
         });
         $atomLines.on('mouseleave focus', function () {
             $(this).css('outline', '0');
@@ -134,8 +100,8 @@ $(function () {
                 method: 'POST',
                 headers: {'X-CSRF-Token': csrfToken},
                 data: {editorID: atomLineId, editabledata: atomLineContent, atomType: 'atomline'}
-            }).success(function (res) {
-                const responseData = (typeof res === 'string') ? JSON.parse(res) : res;
+            }).done(function (res) {
+                const responseData = parseResponse(res);
                 if (responseData.status === 'ok') {
                     $('span#' + atomLineId).html(atomLineContent);
                     $body.prepend(saveMsg('ok', responseData.details));
@@ -157,9 +123,7 @@ $(function () {
 
         // Show AtomEntity on mouseover
         $atomEntities.on('mouseenter', function () {
-            if (!$($(this)[0]).hasClass('cke_focus')) {
-                $(this).css('outline', '4px dashed red');
-            }
+            $(this).css('outline', '4px dashed red');
         });
         $atomEntities.on('mouseleave focus', function () {
             $(this).css('outline', '0');
@@ -200,8 +164,8 @@ $(function () {
                     signature: atomEntitySignature,
                     content: atomEntityContent
                 }
-            }).success(function (res) {
-                const responseData = (typeof res === 'string') ? JSON.parse(res) : res;
+            }).done(function (res) {
+                const responseData = parseResponse(res);
                 if (responseData.status === 'ok') {
                     const escapedEntity = atomEntityEntity.replace(/\\/g, '\\\\');
                     $('div[data-atom-entity="' + escapedEntity + '"][data-atom-id="' + atomEntityId + '"]').html(responseData.content);
@@ -229,13 +193,308 @@ $(function () {
             data: {
                 enabled: !!JSON.parse(window.localStorage.getItem('atoms_enabled'))
             }
-        }).success(function (res) {
+        }).done(function (res) {
             if (res.status === 'ok') {
                 window.localStorage.setItem('atoms_enabled', JSON.stringify(res.details));
             }
-        }).fail(function (err) {
         }).always(function () {
             window.location.reload();
         });
     });
+
+
+    /**
+     * Turns every Atom into an inline Jodit editor. The editor is created lazily, the first time the
+     * mouse enters the Atom (or on click on touch devices), so pages with many Atoms stay fast.
+     */
+    function initAtomEditors() {
+        const
+            saveUrl = $atomConfig.data('save-url'),
+            uploadUrl = $atomConfig.data('image-upload-url'),
+            imageListUrl = $atomConfig.data('image-list-url'),
+            // Same image types as the original CKEditor uploadimage plugin, plus WebP
+            uploadableImageTypes = /^image\/(jpeg|png|gif|bmp|webp)$/i,
+            language = resolveLanguage($atomConfig.data('locale')),
+            translations = {
+                cs_cz: {
+                    'Save (Ctrl+S)': 'Uložit (Ctrl+S)',
+                    'Uploaded images': 'Nahrané obrázky',
+                    'Loading...': 'Načítání...',
+                    'No images have been uploaded yet': 'Zatím nebyly nahrány žádné obrázky',
+                    'Images could not be loaded': 'Obrázky se nepodařilo načíst',
+                    'Only JPEG, PNG, GIF, BMP and WebP images can be uploaded': 'Nahrát lze pouze obrázky JPEG, PNG, GIF, BMP a WebP',
+                    'Upload failed': 'Nahrání se nezdařilo'
+                }
+            };
+
+        // Show Atom on mouseover
+        $atoms.on('mouseenter', function () {
+            getEditor(this);
+            if (!$(this).hasClass('atom-editing')) {
+                $(this).css('outline', '4px dashed #009999');
+            }
+        });
+        $atoms.on('mouseleave focusin', function () {
+            $(this).css('outline', '0');
+        });
+        $atoms.on('click', function () {
+            $('#atom-line-editor-body').remove();
+            // Touch devices may not fire mouseenter before the click
+            if (!$(this).data('atomEditor')) {
+                getEditor(this).s.focus();
+            }
+        });
+
+        function getEditor(element) {
+            const $element = $(element);
+            let editor = $element.data('atomEditor');
+            if (!editor) {
+                editor = createEditor(element);
+                $element.data('atomEditor', editor);
+            }
+            return editor;
+        }
+
+        function createEditor(element) {
+            const editor = Jodit.make(element, {
+                // Edit the Atom in place, the page styles stay applied to the content
+                inline: true,
+                language: language,
+                i18n: translations,
+                toolbarAdaptive: false,
+                toolbarSticky: true,
+                statusbar: false,
+                // Plain textarea for the HTML source and no beautifier: nothing is downloaded from a CDN
+                sourceEditor: 'area',
+                beautifyHTML: false,
+                // Insert images in their natural size (as CKEditor did)
+                imageDefaultWidth: null,
+                // YouTube (and Vimeo) embedding via the built-in "video" button
+                video: {
+                    defaultWidth: 640,
+                    defaultHeight: 480
+                },
+                // Drag & drop, paste and the "Upload" tab of the image button go to the existing upload route
+                uploader: {
+                    url: uploadUrl,
+                    filesVariableName: function () {
+                        return 'upload';
+                    },
+                    // The route accepts a single file in the "upload" field, so each file is sent separately
+                    customUploadFunction: function (formData, showProgress) {
+                        const errors = [];
+                        const images = formData.getAll('upload').filter(function (file) {
+                            if (file && uploadableImageTypes.test(file.type)) {
+                                return true;
+                            }
+                            errors.push((file && file.name ? file.name + ': ' : '') + editor.i18n('Only JPEG, PNG, GIF, BMP and WebP images can be uploaded'));
+                            return false;
+                        });
+
+                        showProgress(10);
+                        return Promise.all(images.map(function (file) {
+                            return uploadImage(editor, file);
+                        })).then(function (results) {
+                            showProgress(100);
+                            const urls = [];
+                            results.forEach(function (result) {
+                                if (result.url) {
+                                    urls.push(result.url);
+                                } else {
+                                    errors.push(result.error);
+                                }
+                            });
+                            return {urls: urls, errors: errors};
+                        });
+                    },
+                    isSuccess: function (resp) {
+                        return resp.urls.length > 0;
+                    },
+                    getMessage: function (resp) {
+                        return resp.errors.join('\n') || editor.i18n('Upload failed');
+                    },
+                    process: function (resp) {
+                        if (resp.errors.length) {
+                            editor.message.error(resp.errors.join('\n'), 6000);
+                        }
+                        return {
+                            baseurl: '',
+                            path: '',
+                            files: resp.urls,
+                            isImages: resp.urls.map(function () {
+                                return true;
+                            }),
+                            error: 0,
+                            msg: ''
+                        };
+                    }
+                },
+                buttons: [
+                    {
+                        name: 'atomSave',
+                        icon: 'save',
+                        tooltip: 'Save (Ctrl+S)',
+                        mode: Jodit.constants.MODE_SPLIT, // Enabled in the HTML source view too
+                        exec: function (jodit) {
+                            saveAtom(jodit);
+                        }
+                    },
+                    '|',
+                    'undo', 'redo', '|',
+                    'paragraph', 'bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'eraser', '|',
+                    'ul', 'ol', 'outdent', 'indent', 'align', '|',
+                    'font', 'fontsize', 'brush', '|',
+                    'link', 'image',
+                    {
+                        name: 'atomImages',
+                        icon: 'folder',
+                        tooltip: 'Uploaded images',
+                        exec: function (jodit) {
+                            openImageBrowser(jodit);
+                        }
+                    },
+                    'video', 'table', 'hr', 'symbols', '|',
+                    'find', 'source'
+                ]
+            });
+
+            editor.registerCommand('atomSave', {
+                exec: function () {
+                    saveAtom(editor);
+                    return false; // Prevents the browser "Save page" dialog
+                },
+                hotkeys: ['ctrl+s', 'cmd+s']
+            });
+
+            // Only the Atom that is being edited shows its toolbar
+            editor.e.on('focus', function () {
+                $atoms.filter('.atom-editing').not(element).removeClass('atom-editing');
+                $(element).addClass('atom-editing').css('outline', '0');
+            });
+
+            return editor;
+        }
+
+        /**
+         * Sends one image to the existing upload route (file in the "upload" field, as CKEditor did)
+         */
+        function uploadImage(editor, file) {
+            const data = new FormData();
+            data.append('upload', file, file.name);
+
+            return fetch(uploadUrl, {
+                method: 'POST',
+                body: data,
+                credentials: 'same-origin',
+                headers: {'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': csrfToken}
+            }).then(function (response) {
+                return response.json();
+            }).then(function (res) {
+                if (res && Number(res.uploaded) === 1 && res.url) {
+                    return {url: res.url};
+                }
+                return {error: file.name + ': ' + ((res && res.error && res.error.message) || editor.i18n('Upload failed'))};
+            }).catch(function () {
+                return {error: file.name + ': ' + editor.i18n('Upload failed')};
+            });
+        }
+
+        function saveAtom(editor) {
+            // Make sure changes made in the HTML source view are synchronized
+            if (editor.getRealMode() !== Jodit.constants.MODE_WYSIWYG) {
+                editor.setMode(Jodit.constants.MODE_WYSIWYG);
+            }
+
+            $body.prepend(saveMsg());
+            $.ajax({
+                url: saveUrl,
+                method: 'POST',
+                headers: {'X-CSRF-Token': csrfToken},
+                data: {
+                    editorID: editor.element.id,
+                    editabledata: editor.value
+                }
+            }).done(function (res) {
+                const responseData = parseResponse(res);
+                $body.prepend(saveMsg(responseData.status === 'ok' ? 'ok' : 'error', responseData.details));
+            }).fail(function (xhr) {
+                $body.prepend(saveMsg('error', errorDetails(xhr)));
+            });
+        }
+
+        /**
+         * Lets the user pick one of the already uploaded images (replacement of the CKEditor imagebrowser plugin)
+         */
+        function openImageBrowser(editor) {
+            let pickedImage = null;
+
+            editor.s.save();
+
+            const dialog = editor.dlg({closeOnClickOverlay: true}),
+                $grid = $('<div class="atom-image-browser"></div>').text(editor.i18n('Loading...'));
+
+            dialog.e.on(dialog, 'afterClose', function () {
+                editor.s.restore();
+                if (pickedImage) {
+                    editor.s.insertImage(pickedImage, null, editor.o.imageDefaultWidth);
+                }
+            });
+
+            dialog.setHeader(editor.i18n('Uploaded images'));
+            dialog.setContent($grid[0]);
+            dialog.setSize(Math.min(800, window.innerWidth - 32), Math.min(560, window.innerHeight - 32));
+            dialog.open(true, true); // destroy after close, modal
+
+            $.ajax({
+                url: imageListUrl,
+                dataType: 'json',
+                cache: false
+            }).done(function (images) {
+                $grid.empty();
+                images = Array.isArray(images) ? images.filter(function (item) {
+                    return item && typeof item.image === 'string' && item.image !== '';
+                }) : [];
+
+                if (!images.length) {
+                    $grid.text(editor.i18n('No images have been uploaded yet'));
+                    return;
+                }
+
+                images.forEach(function (item) {
+                    const fileName = item.image.split('/').pop();
+                    $('<button type="button" class="atom-image-browser__item"></button>')
+                        .attr('title', fileName)
+                        .append($('<img alt="" loading="lazy">').attr('src', item.image))
+                        .on('click', function () {
+                            pickedImage = item.image;
+                            dialog.close();
+                        })
+                        .appendTo($grid);
+                });
+            }).fail(function () {
+                $grid.text(editor.i18n('Images could not be loaded'));
+            });
+        }
+
+        /**
+         * Maps the request locale (e.g. "cs") to a Jodit language key (e.g. "cs_cz")
+         */
+        function resolveLanguage(locale) {
+            const languages = Jodit.lang || {},
+                normalized = String(locale || '').toLowerCase().replace('-', '_'),
+                short = normalized.split('_')[0];
+
+            if (normalized && languages[normalized]) {
+                return normalized;
+            }
+            if (short && languages[short]) {
+                return short;
+            }
+            const match = short ? Object.keys(languages).filter(function (key) {
+                return key.indexOf(short + '_') === 0;
+            })[0] : null;
+
+            return match || 'en';
+        }
+    }
 });

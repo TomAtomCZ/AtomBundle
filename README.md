@@ -133,7 +133,7 @@ framework:
 * `::base.html.twig` (or your base layout):
 
 ```twig
-{# don't forget to include your jQuery (tested with 1.8.3 - 2.1.4, others may work, 3.0 doesn't): #}
+{# don't forget to include your jQuery (tested with 1.12.4 and 3.7.1): #}
 <script src={{ asset('path/to/jQuery.js') }}></script>
 
 {{ render(controller('TomAtom\\AtomBundle\\Controller\\AtomController::_metasAction')) }}
@@ -165,7 +165,7 @@ framework:
 
 * there are currently 3 __Atom__ types:
 
-> * `atom` - __Atom__ with rich text editor ([CKEditor](http://ckeditor.com/))
+> * `atom` - __Atom__ with inline rich text editor ([Jodit](https://xdsoft.net/jodit/), bundled in `public/js/lib/jodit`)
 >* `atomline` - __Atom Line__ for editing plaintext inside fixed html tags
 >* `atomentity` - __Atom Entity__ display and update column for given entity
 
