@@ -21,13 +21,15 @@ class NodeHelper
     protected ParameterBagInterface $parameterBag;
     protected CacheRuntime $cache;
     protected RequestStack $requestStack;
+    protected AtomEntitySigner $entitySigner;
 
     public function __construct(EntityManagerInterface        $entityManager,
                                 AuthorizationCheckerInterface $authorizationChecker,
                                 KernelInterface               $kernelInterface,
                                 ParameterBagInterface         $parameterBag,
                                 CacheRuntime                  $cache,
-                                RequestStack                  $requestStack)
+                                RequestStack                  $requestStack,
+                                AtomEntitySigner              $entitySigner)
     {
         $this->entityManager = $entityManager;
         $this->authorizationChecker = $authorizationChecker;
@@ -35,6 +37,7 @@ class NodeHelper
         $this->parameterBag = $parameterBag;
         $this->cache = $cache;
         $this->requestStack = $requestStack;
+        $this->entitySigner = $entitySigner;
     }
 
     /**
@@ -145,7 +148,12 @@ class NodeHelper
             }
 
             if ($isAdmin) {
-                $result = '<div class="atomentity" data-atom-entity="' . $name . '" data-atom-id="' . $id . '" data-atom-method="' . $method . '">';
+                // The signature allows saving only this entity, method and id (see AtomController::saveCustomEntityAction)
+                $result = '<div class="atomentity"'
+                    . ' data-atom-entity="' . htmlspecialchars((string)$name, ENT_QUOTES) . '"'
+                    . ' data-atom-id="' . htmlspecialchars((string)$id, ENT_QUOTES) . '"'
+                    . ' data-atom-method="' . htmlspecialchars((string)$method, ENT_QUOTES) . '"'
+                    . ' data-atom-signature="' . $this->entitySigner->sign((string)$name, (string)$method, (string)$id) . '">';
                 $result .= $body;
                 $result .= '</div>';
             } else {

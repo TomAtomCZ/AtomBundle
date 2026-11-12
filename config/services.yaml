@@ -18,6 +18,12 @@ services:
             $parameterBag: "@parameter_bag"
             $cache: "@twig.runtime.cache"
             $requestStack: "@request_stack"
+            $entitySigner: "@tom_atom.service.atom_entity_signer"
+
+    tom_atom.service.atom_entity_signer:
+        class: TomAtom\AtomBundle\Services\AtomEntitySigner
+        arguments:
+            $secret: '%kernel.secret%'
 
     tom_atom.service.atom_runtime:
         class: TomAtom\AtomBundle\Services\AtomRuntime
@@ -42,3 +48,4 @@ services:
             $parameterBag: '@parameter_bag'
             $deepL: '@tom_atom.service.deepl'
             $nodeHelper: "@tom_atom.service.node_helper"
+            $entitySigner: "@tom_atom.service.atom_entity_signer"

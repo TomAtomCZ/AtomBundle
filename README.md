@@ -141,6 +141,23 @@ framework:
 
 * for drag&drop image uploading from editor, __create upload directory__: `/web/uploads/atom`
 
+### Security:
+
+* all requests saving data (`atom_save`, `atom_entity_save`, `atom_upload_image`) require a __CSRF token__, which is
+  rendered by `_metasAction` and sent by the editor automatically. CSRF protection must be enabled (it is by default
+  when sessions are enabled):
+
+```yml
+framework:
+  csrf_protection: true
+```
+
+* __Atom Entities__ are signed with `kernel.secret` (`APP_SECRET`), so only the entity, method and id rendered by
+  an `{% atomentity %}` tag can be saved – make sure `APP_SECRET` is set
+* only __JPEG, PNG, GIF, WebP and BMP__ images can be uploaded, the type is detected from the file content and the
+  file is saved with a safe name and the matching extension. It is still recommended to disable script execution
+  in the upload directory on your web server
+
 ### Usage:
 
 * __Atoms intentionally works only in `prod` environment!__

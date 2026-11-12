@@ -11,6 +11,8 @@ $(function () {
         $atomEntityEditorBody = '<div id="atom-entity-editor-body"><h3>Edit property</h3><input type="text" id="atom-entity-editor"><div><div id="atom-entity-editor-cancel-btn">Cancel</div><div id="atom-entity-editor-send-btn">Save</div></div></div>',
         $atomConfig = $('#atom-config'),
         $atomEntityConfig = $('#atom-entity-config'),
+        // CSRF token required by the save and upload routes
+        csrfToken = $atomConfig.attr('data-csrf-token') || '',
         atomsEditable = !!JSON.parse(window.localStorage.getItem('atoms_enabled')),
         $atomToggleBtn = '<div class="atoms-' + (atomsEditable ? "enabled" : "disabled") + '" id="atom-toggle-btn" title="Toggle Atoms"></div>',
 
@@ -38,6 +40,14 @@ $(function () {
                 typeMsg += ' (' + details + ')';
             }
             return '<div class="ckeditor-save-msg ' + typeClass + '">' + typeMsg + '</div>';
+        },
+
+        errorDetails = function (xhr) {
+            try {
+                return JSON.parse(xhr.responseText).details;
+            } catch (e) {
+                return null;
+            }
         };
 
     $body.on('click mouseenter', 'div.ckeditor-save-msg', function () {
@@ -65,7 +75,7 @@ $(function () {
 
         CKEDITOR.config.inlinesave = {
             postUrl: $atomConfig.data('save-url'),
-            postData: {}, // editorID, editabledata
+            postData: {_token: csrfToken}, // + editorID, editabledata
             useJSON: false,
             useColorIcon: true,
             onSave: function () {
@@ -77,12 +87,18 @@ $(function () {
                 $body.prepend(saveMsg(responseData.status, responseData.details));
                 return true;
             },
-            onFailure: function (editor, data) {
-                const responseData = JSON.parse(data);
-                $body.prepend(saveMsg(responseData.status, responseData.details));
+            onFailure: function (editor, status, xhr) {
+                $body.prepend(saveMsg('error', xhr ? errorDetails(xhr) : null));
                 return false;
             }
         };
+
+        // Image upload (uploadimage plugin): add the CSRF token between xhr.open (priority 5) and xhr.send (priority 999)
+        CKEDITOR.on('instanceCreated', function (evt) {
+            evt.editor.on('fileUploadRequest', function (uploadEvt) {
+                uploadEvt.data.fileLoader.xhr.setRequestHeader('X-CSRF-Token', csrfToken);
+            }, null, null, 10);
+        });
 
         CKEDITOR.config.uploadUrl = $atomConfig.data('image-upload-url');
         CKEDITOR.config.imageBrowser_listUrl = $atomConfig.data('image-list-url');
@@ -116,6 +132,7 @@ $(function () {
             $.ajax({
                 url: $atomConfig.data('save-url'),
                 method: 'POST',
+                headers: {'X-CSRF-Token': csrfToken},
                 data: {editorID: atomLineId, editabledata: atomLineContent, atomType: 'atomline'}
             }).success(function (res) {
                 const responseData = (typeof res === 'string') ? JSON.parse(res) : res;
@@ -125,8 +142,8 @@ $(function () {
                 } else {
                     $body.prepend(saveMsg('error', responseData.details));
                 }
-            }).fail(function () {
-                $body.prepend(saveMsg('error'));
+            }).fail(function (xhr) {
+                $body.prepend(saveMsg('error', errorDetails(xhr)));
             });
             $('#atom-line-editor-body').remove();
         });
@@ -151,7 +168,8 @@ $(function () {
         $atomEntities.on('click', function () {
             const atomEntityEntity = $(this).data('atom-entity'),
                 atomEntityMethod = $(this).data('atom-method'),
-                atomEntityId = $(this).data('atom-id');
+                atomEntityId = $(this).data('atom-id'),
+                atomEntitySignature = $(this).attr('data-atom-signature');
             $('#atom-entity-editor-body').remove();
             $body.append($atomEntityEditorBody);
             const $atomEntityEditor = $('#atom-entity-editor');
@@ -159,6 +177,7 @@ $(function () {
                 .attr('data-atom-entity', atomEntityEntity)
                 .attr('data-atom-method', atomEntityMethod)
                 .attr('data-atom-id', atomEntityId)
+                .attr('data-atom-signature', atomEntitySignature)
                 .val($(this).html().trim());
         });
 
@@ -168,14 +187,17 @@ $(function () {
             const atomEntityEntity = $atomEntityEditor.data('atom-entity'),
                 atomEntityMethod = $atomEntityEditor.data('atom-method'),
                 atomEntityId = $atomEntityEditor.data('atom-id'),
+                atomEntitySignature = $atomEntityEditor.attr('data-atom-signature'),
                 atomEntityContent = $atomEntityEditor.val();
             $.ajax({
                 url: $atomEntityConfig.data('save-url'),
                 method: 'POST',
+                headers: {'X-CSRF-Token': csrfToken},
                 data: {
                     entity: atomEntityEntity,
                     method: atomEntityMethod,
                     id: atomEntityId,
+                    signature: atomEntitySignature,
                     content: atomEntityContent
                 }
             }).success(function (res) {
@@ -187,8 +209,8 @@ $(function () {
                 } else {
                     $body.prepend(saveMsg('error', responseData.details));
                 }
-            }).fail(function () {
-                $body.prepend(saveMsg('error'));
+            }).fail(function (xhr) {
+                $body.prepend(saveMsg('error', errorDetails(xhr)));
             });
             $('#atom-entity-editor-body').remove();
         });

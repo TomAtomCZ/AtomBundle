@@ -8,6 +8,7 @@
           data-image-list-url="{{ path('atom_image_list') }}"
           data-toggle-editable="{{ path('atom_toggle_enabled') }}"
           data-editable="{{ editable }}"
+          data-csrf-token="{{ atom_csrf_token|default('') }}"
           data-locale="{{ app.request.locale }}">
     </span>
     <span id="atom-entity-config"
